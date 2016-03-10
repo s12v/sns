@@ -1,0 +1,27 @@
+sudo: false
+
+language: scala
+
+scala:
+  - 2.11.7
+
+jdk:
+  - oraclejdk8
+  
+cache:
+  - bundler
+
+install:
+  - bundle install
+
+script:
+  - sbt clean test
+  - sbt run > log.txt &
+  - while ! curl --silent localhost:9911; do echo "⌛" && sleep 2; done
+  - AWS_ACCESS_KEY_ID=foo AWS_SECRET_ACCESS_KEY=bar SNS_ENDPOINT=http://localhost:9911/ LOG=yes bundle exec cucumber
+
+after_failure:
+  - cat log.txt
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

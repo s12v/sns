@@ -11,12 +11,6 @@ import akka.util.Timeout
 
 import scala.collection.mutable
 
-case class CmdCreate(name: String)
-
-case class CmdDelete(arn: String)
-
-case class CmdList()
-
 object TopicApi {
   private val namePattern = """([\w+_-]{1,256})""".r
   private val arnPattern = """([\w+_:-]{1,512})""".r
@@ -45,6 +39,12 @@ object TopicApi {
   }
 
   case class Topic(val arn: String, val name: String)
+
+  case class CmdCreate(name: String)
+
+  case class CmdDelete(arn: String)
+
+  case class CmdList()
 }
 
 object TopicResponses extends XmlHttpResponse {

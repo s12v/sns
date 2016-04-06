@@ -23,9 +23,11 @@ object Main extends App with Config with HealthCheck {
 
   val homeActor = system.actorOf(HomeApi.props)
   val topicActor = system.actorOf(TopicApi.props)
+  val subscribeActor = system.actorOf(SubscribeApi.props)
 
   val routes: Route = {
       TopicApi.route(topicActor) ~
+      SubscribeApi.route(subscribeActor) ~
       healthCheckRoutes ~
       HomeApi.route(homeActor)
   }

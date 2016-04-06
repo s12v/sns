@@ -1,11 +1,11 @@
-name := "SNS"
+name := "sns"
 
 version := "0.0.1"
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.8"
 
 libraryDependencies ++= {
-  val akkaVersion = "2.4.2"
+  val akkaVersion = "2.4.3"
 
   Seq(
     "com.typesafe.akka" %% "akka-actor" % akkaVersion,

@@ -7,6 +7,7 @@ import akka.http.scaladsl.model.{FormData, HttpResponse, StatusCodes}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.testkit.{TestActor, TestProbe}
 import akka.util.Timeout
+import me.snov.sns.api.TopicApi.{CmdDelete, CmdCreate}
 import org.scalatest.{Matchers, WordSpec}
 
 class TopicSpec extends WordSpec with Matchers with ScalatestRouteTest {

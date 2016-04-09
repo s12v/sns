@@ -7,6 +7,7 @@ When(/^I subscribe endpoint "([^"]*)" with protocol "([^"]*)" to topic "([^"]*)"
 end
 
 Then(/^subscription should be successful$/) do
+  p @response.subscription_arn
   expect(@response.subscription_arn.length).to be > 0
 end
 
@@ -20,5 +21,26 @@ Then(/^I see endpoint "([^"]*)" with topic "([^"]*)"$/) do |endpoint, topic|
   match = @response.subscriptions.select do |subscription|
     subscription.endpoint == endpoint && subscription.topic_arn == get_arn(topic)
   end
+  
   expect(match.length).to be > 0
+end
+
+Then(/^I see endpoint "([^"]*)"$/) do |endpoint|
+  match = @response.subscriptions.select do |subscription|
+    subscription.endpoint == endpoint
+  end
+  
+  expect(match.length).to be > 0
+end
+
+Then(/^I don't see endpoint "([^"]*)"$/) do |endpoint|
+  match = @response.subscriptions.select do |subscription|
+    subscription.endpoint == endpoint
+  end
+
+  expect(match.length).to be 0
+end
+
+And(/^I list all subscriptions$/) do
+  @response = $client.list_subscriptions
 end

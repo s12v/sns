@@ -27,8 +27,13 @@ Given('AWS-SDK client') do
     region: 'us-east-1',
   }
 
-  if ENV.has_key?('SNS_ENDPOINT')
-    config[:endpoint] = ENV['SNS_ENDPOINT']
+  if ENV.has_key?('ENDPOINT')
+    config[:endpoint] = ENV['ENDPOINT']
+  end
+
+  if ENV.has_key?('HTTP_PROXY')
+    config[:http_proxy] = ENV['HTTP_PROXY']
+    config[:ssl_verify_peer] = false
   end
 
   if ENV.has_key?('LOG') && ENV['LOG'] == 'yes'

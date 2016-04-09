@@ -7,7 +7,7 @@ import akka.http.scaladsl.model.{FormData, HttpResponse, StatusCodes}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.testkit.{TestActor, TestProbe}
 import akka.util.Timeout
-import me.snov.sns.api.SubscribeApi.CmdSubscribe
+import me.snov.sns.api.SubscribeApi.{CmdListByTopic, CmdList, CmdSubscribe}
 import org.scalatest.{Matchers, WordSpec}
 
 class SubscribeSpec extends WordSpec with Matchers with ScalatestRouteTest {
@@ -53,6 +53,32 @@ class SubscribeSpec extends WordSpec with Matchers with ScalatestRouteTest {
     })
     Post("/", FormData(params)) ~> route ~> check {
       probe.expectMsg(CmdSubscribe("aaa", "bbb", "ccc"))
+    }
+  }
+
+  "Sends CmdList" in {
+    val params = Map("Action" -> "ListSubscriptions")
+    probe.setAutoPilot(new TestActor.AutoPilot {
+      def run(sender: ActorRef, msg: Any) = {
+        sender ! HttpResponse(200)
+        this
+      }
+    })
+    Post("/", FormData(params)) ~> route ~> check {
+      probe.expectMsg(CmdList())
+    }
+  }
+
+  "Sends CmdListByTopic" in {
+    val params = Map("Action" -> "ListSubscriptionsByTopic", "TopicArn" -> "foo")
+    probe.setAutoPilot(new TestActor.AutoPilot {
+      def run(sender: ActorRef, msg: Any) = {
+        sender ! HttpResponse(200)
+        this
+      }
+    })
+    Post("/", FormData(params)) ~> route ~> check {
+      probe.expectMsg(CmdListByTopic("foo"))
     }
   }
 }

@@ -7,6 +7,13 @@ Before do
   @resp = nil
 end
 
+After do
+  @arns.each do |name, arn|
+    puts "Remove topic #{name}"
+    $client.delete_topic(topic_arn: arn)
+  end
+end
+
 def randomized_topic(topic_name)
   "#{topic_name}-#{@rand}"
 end

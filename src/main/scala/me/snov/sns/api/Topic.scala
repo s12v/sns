@@ -14,7 +14,6 @@ import scala.collection.mutable
 object TopicApi {
   private val namePattern = """([\w+_-]{1,256})""".r
   private val arnPattern = """([\w+_:-]{1,512})""".r
-  def props = Props[TopicActor]
 
   def route(actorRef: ActorRef)(implicit timeout: Timeout): Route = {
     pathSingleSlash {
@@ -99,6 +98,10 @@ object TopicResponses extends XmlHttpResponse {
       </ListTopicsResponse>
     )
   }
+}
+
+object TopicActor {
+  def props = Props[TopicActor]
 }
 
 class TopicActor extends Actor {

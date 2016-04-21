@@ -2,20 +2,19 @@ package me.snov.sns.api
 
 import java.util.UUID
 
-import akka.actor.{Actor, ActorRef, Props}
+import akka.actor.{ActorLogging, Actor, ActorRef, Props}
 import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.pattern.ask
-import akka.util.{Crypt, Timeout}
-import me.snov.sns.api.SubscribeApi.Subscription
+import akka.util.Timeout
+import me.snov.sns.api.SubscribeActor._
+import me.snov.sns.model.Message
 
 import scala.collection.mutable
 
 object SubscribeApi {
   private val arnPattern = """([\w+_:-]{1,512})""".r
-
-  def props = Props[SubscribeActor]
 
   def route(actorRef: ActorRef)(implicit timeout: Timeout): Route = {
     pathSingleSlash {
@@ -43,24 +42,6 @@ object SubscribeApi {
         }
     }
   }
-
-  case class CmdSubscribe(endpoint: String, protocol: String, topicArn: String)
-
-  case class CmdList()
-
-  case class CmdListByTopic(topicArn: String)
-
-  case class Subscription(
-                           topicArn: String,
-                           subscriptionArn: String,
-                           protocol: String,
-                           endpoint: String,
-                           owner: String
-                         ) {
-    def this(topicArn: String, protocol: String, endpoint: String) =
-      this(topicArn, UUID.randomUUID().toString, protocol, endpoint, "")
-  }
-
 }
 
 object SubscribeResponses extends XmlHttpResponse {
@@ -150,12 +131,44 @@ object SubscribeResponses extends XmlHttpResponse {
   }
 }
 
-class SubscribeActor extends Actor {
+object SubscribeActor {
+  def props = Props[SubscribeActor]
 
-  import SubscribeApi._
+  case class CmdSubscribe(endpoint: String, protocol: String, topicArn: String)
+
+  case class CmdList()
+
+  case class CmdListByTopic(topicArn: String)
+
+  case class CmdFanOut(topicArn: String, message: Message)
+
+  case class Subscription(
+                           topicArn: String,
+                           subscriptionArn: String,
+                           protocol: String,
+                           endpoint: String,
+                           owner: String
+                         ) {
+    def this(topicArn: String, protocol: String, endpoint: String) =
+      this(topicArn, UUID.randomUUID().toString, protocol, endpoint, "")
+  }
+}
+
+
+class SubscribeActor extends Actor with ActorLogging {
 
   var subscriptions = mutable.HashMap.empty[String, List[Subscription]]
 
+  private def fanOut(topicArn: String, message: Message) = {
+    subscriptions.get(topicArn) match {
+      case Some(ss: List[Subscription]) =>
+        ss.foreach((s: Subscription) => 
+          log.info(s.endpoint)
+        )
+      case None => log.info(s"Not found by $topicArn")
+    }
+  }
+  
   private def subscribe(endpoint: String, protocol: String, topicArn: String): HttpResponse = {
     val subscription = new Subscription(topicArn, protocol, endpoint)
     subscriptions.put(topicArn, subscription :: subscriptions.getOrElse(topicArn, List()))
@@ -174,6 +187,7 @@ class SubscribeActor extends Actor {
     case CmdSubscribe(endpoint, protocol, topicArn) => sender ! subscribe(endpoint, protocol, topicArn)
     case CmdListByTopic(topicArn) => sender ! listByTopic(topicArn)
     case CmdList() => sender ! list()
+    case CmdFanOut(topicArn, message) => fanOut(topicArn, message)
     case _ => sender ! HttpResponse(500, entity = "Invalid message")
   }
 }

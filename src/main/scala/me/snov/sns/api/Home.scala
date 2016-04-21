@@ -8,8 +8,6 @@ import akka.http.scaladsl.server._
 import akka.util.Timeout
 
 object HomeApi {
-  def props = Props[HomeActor]
-
   def route(actorRef: ActorRef)(implicit timeout: Timeout): Route = {
     pathSingleSlash {
       complete { (actorRef ? CmdHello).mapTo[HttpResponse] }
@@ -17,6 +15,10 @@ object HomeApi {
   }
   
   case class CmdHello()
+}
+
+object HomeActor {
+  def props = Props[HomeActor]
 }
 
 class HomeActor extends Actor {

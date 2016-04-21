@@ -1,4 +1,4 @@
-package me.snov.sns.utils
+package me.snov.sns.util
 
 import com.typesafe.config.ConfigFactory
 

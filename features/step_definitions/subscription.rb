@@ -7,7 +7,6 @@ When(/^I subscribe endpoint "([^"]*)" with protocol "([^"]*)" to topic "([^"]*)"
 end
 
 Then(/^subscription should be successful$/) do
-  p @response.subscription_arn
   expect(@response.subscription_arn.length).to be > 0
 end
 

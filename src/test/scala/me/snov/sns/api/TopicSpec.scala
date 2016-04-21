@@ -11,7 +11,7 @@ import me.snov.sns.api.TopicApi.{CmdDelete, CmdCreate}
 import org.scalatest.{Matchers, WordSpec}
 
 class TopicSpec extends WordSpec with Matchers with ScalatestRouteTest {
-  implicit val timeout = new Timeout(200, TimeUnit.MILLISECONDS)
+  implicit val timeout = new Timeout(100, TimeUnit.MILLISECONDS)
 
   val probe = TestProbe()
   val route = TopicApi.route(probe.ref)

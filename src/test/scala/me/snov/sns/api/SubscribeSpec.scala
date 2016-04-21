@@ -7,11 +7,11 @@ import akka.http.scaladsl.model.{FormData, HttpResponse, StatusCodes}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.testkit.{TestActor, TestProbe}
 import akka.util.Timeout
-import me.snov.sns.api.SubscribeApi.{CmdListByTopic, CmdList, CmdSubscribe}
+import me.snov.sns.api.SubscribeActor.{CmdListByTopic, CmdList, CmdSubscribe}
 import org.scalatest.{Matchers, WordSpec}
 
 class SubscribeSpec extends WordSpec with Matchers with ScalatestRouteTest {
-  implicit val timeout = new Timeout(200, TimeUnit.MILLISECONDS)
+  implicit val timeout = new Timeout(100, TimeUnit.MILLISECONDS)
 
   val probe = TestProbe()
   val route = SubscribeApi.route(probe.ref)

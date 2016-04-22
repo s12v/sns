@@ -10,7 +10,10 @@ end
 After do
   @arns.each do |name, arn|
     puts "Remove topic #{name}"
-    $client.delete_topic(topic_arn: arn)
+    begin
+      $client.delete_topic(topic_arn: arn)
+    rescue Aws::SNS::Errors::NotFound
+    end
   end
 end
 

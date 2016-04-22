@@ -142,12 +142,12 @@ object SubscribeActor {
 
   case class CmdFanOut(topicArn: String, message: Message)
 
-  case class Subscription(topicArn: String, protocol: String, endpoint: String) {
+  case class Subscription(topicArn: String, protocol: String, endpoint: String, actorRef: ActorRef) {
     val subscriptionArn = UUID.randomUUID().toString
     val owner = ""
   }
-}
 
+}
 
 class SubscribeActor extends Actor with ActorLogging {
 
@@ -156,16 +156,19 @@ class SubscribeActor extends Actor with ActorLogging {
   private def fanOut(topicArn: String, message: Message) = {
     subscriptions.get(topicArn) match {
       case Some(ss: List[Subscription]) =>
-        ss.foreach((s: Subscription) => 
-          log.info(s.endpoint)
-        )
-      case None => log.info(s"Not found by $topicArn")
+        ss.foreach((s: Subscription) => {
+          log.info(s"Sending message ${message.uuid} to ${s.endpoint}")
+          s.actorRef ! message.body
+        })
+      case None => log.warning(s"Topic not found: $topicArn")
     }
   }
-  
+
   private def subscribe(endpoint: String, protocol: String, topicArn: String): HttpResponse = {
-    val subscription = new Subscription(topicArn, protocol, endpoint)
+    val producer = context.system.actorOf(SnsProducer.props(endpoint))
+    val subscription = new Subscription(topicArn, protocol, endpoint, producer)
     subscriptions.put(topicArn, subscription :: subscriptions.getOrElse(topicArn, List()))
+
     SubscribeResponses.subscribe(subscription.subscriptionArn)
   }
 

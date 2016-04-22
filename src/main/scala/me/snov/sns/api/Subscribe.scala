@@ -142,15 +142,9 @@ object SubscribeActor {
 
   case class CmdFanOut(topicArn: String, message: Message)
 
-  case class Subscription(
-                           topicArn: String,
-                           subscriptionArn: String,
-                           protocol: String,
-                           endpoint: String,
-                           owner: String
-                         ) {
-    def this(topicArn: String, protocol: String, endpoint: String) =
-      this(topicArn, UUID.randomUUID().toString, protocol, endpoint, "")
+  case class Subscription(topicArn: String, protocol: String, endpoint: String) {
+    val subscriptionArn = UUID.randomUUID().toString
+    val owner = ""
   }
 }
 

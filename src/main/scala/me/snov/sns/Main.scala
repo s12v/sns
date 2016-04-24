@@ -29,6 +29,7 @@ object Main extends App with Config with HealthCheck {
   val routes: Route = {
       TopicApi.route(topicActor) ~
       SubscribeApi.route(subscribeActor) ~
+      PublishApi.route(publishActor) ~
       healthCheckRoutes ~
       HomeApi.route(homeActor)
   }

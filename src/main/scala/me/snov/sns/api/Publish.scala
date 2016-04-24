@@ -33,11 +33,11 @@ object PublishApi {
 }
 
 object PublishResponses extends XmlHttpResponse {
-  def publish = {
+  def publish(message: Message) = {
     response(
       <PublishResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
         <PublishResult>
-          <MessageId>94f20ce6-13c5-43a0-9a9e-ca52d816e90b</MessageId>
+          <MessageId>{message.uuid}</MessageId>
         </PublishResult>
         <ResponseMetadata>
           <RequestId>{UUID.randomUUID}</RequestId>
@@ -59,7 +59,7 @@ class PublishActor(subscribeActor: ActorRef) extends Actor with ActorLogging {
     
     subscribeActor ! CmdFanOut(topicArn, message)
     
-    PublishResponses.publish
+    PublishResponses.publish(message)
   }
   
   override def receive = {

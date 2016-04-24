@@ -3,7 +3,7 @@ package me.snov.sns.api
 import java.util.UUID
 
 import akka.actor.{ActorLogging, Actor, ActorRef, Props}
-import akka.http.scaladsl.model.HttpResponse
+import akka.http.scaladsl.model.{FormData, HttpResponse}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.pattern.ask
@@ -17,16 +17,23 @@ object PublishApi {
   
   def route(actorRef: ActorRef)(implicit timeout: Timeout): Route = {
     pathSingleSlash {
-      formField('Action ! "Publish") {
-        formFields('TopicArn, 'Message) { (topicArn, message) =>
-          topicArn match {
-            case arnPattern(topic) => complete {
-              (actorRef ? CmdPublish(topic, message)).mapTo[HttpResponse]
+      entity(as[FormData]) { entity =>
+        entity.fields.get("Action") match {
+          case Some("Publish") =>
+            val topicArn = entity.fields.get("TopicArn")
+            val message = entity.fields.get("Message")
+            if (topicArn.isDefined && message.isDefined) {
+              topicArn.get match {
+                case arnPattern(topic) => complete {
+                  (actorRef ? CmdPublish(topic, message.get)).mapTo[HttpResponse]
+                }
+                case _ => complete(HttpResponse(400, entity = "Invalid topic ARN"))
+              }
+            } else {
+              complete(HttpResponse(400, entity = "TopicArn and Message are required"))
             }
-            case _ => complete(HttpResponse(400, entity = "Invalid topic ARN"))
-          }
-        } ~
-        complete(HttpResponse(400, entity = "TopicArn is required"))
+          case default => reject()
+        }
       }
     }
   }

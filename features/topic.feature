@@ -1,3 +1,4 @@
+@topic
 Feature: SNS topics
 
   Background:

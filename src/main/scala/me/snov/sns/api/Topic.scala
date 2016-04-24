@@ -3,7 +3,7 @@ package me.snov.sns.api
 import java.util.UUID
 
 import akka.actor.{Actor, ActorRef, Props}
-import akka.http.scaladsl.model.HttpResponse
+import akka.http.scaladsl.model.{FormData, HttpResponse}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.pattern.ask
@@ -17,22 +17,26 @@ object TopicApi {
 
   def route(actorRef: ActorRef)(implicit timeout: Timeout): Route = {
     pathSingleSlash {
-      formField('Action ! "CreateTopic") {
-        formField('Name) {
-          case namePattern(name) => complete { (actorRef ? CmdCreate(name)).mapTo[HttpResponse] }
-          case _ => complete(HttpResponse(400, entity = "InvalidParameter: invalid topic name"))
-        } ~
-        complete(HttpResponse(400, entity = "Topic name is missing"))
-      } ~
-      formField('Action ! "DeleteTopic") {
-        formField('TopicArn) {
-          case arnPattern(arn) => complete { (actorRef ? CmdDelete(arn)).mapTo[HttpResponse] }
-          case _ => complete(HttpResponse(400, entity = "Invalid topic name"))
-        } ~
-        complete(HttpResponse(404, entity = "NotFound"))
-      } ~ 
-      formField('Action ! "ListTopics") {
-        complete { (actorRef ? CmdList).mapTo[HttpResponse] }
+      entity(as[FormData]) { entity =>
+        entity.fields.get("Action") match {
+          case Some("CreateTopic") =>
+            entity.fields.getOrElse("Name", "") match {
+              case namePattern(name) => complete {
+                (actorRef ? CmdCreate(name)).mapTo[HttpResponse]
+              }
+              case _ => complete(HttpResponse(400, entity = "InvalidParameter: invalid topic name"))
+            }
+          case Some("DeleteTopic") =>
+            entity.fields.getOrElse("TopicArn", "") match {
+              case arnPattern(name) => complete {
+                (actorRef ? CmdDelete(name)).mapTo[HttpResponse]
+              }
+              case _ => complete(HttpResponse(400, entity = "InvalidParameter: Invalid topic arn"))
+            }
+          case Some("ListTopics") =>
+            complete { (actorRef ? CmdList).mapTo[HttpResponse] }
+          case default => reject()
+        }
       }
     }
   }

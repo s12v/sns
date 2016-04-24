@@ -3,7 +3,7 @@ package me.snov.sns.api
 import java.util.UUID
 
 import akka.actor.{ActorLogging, Actor, ActorRef, Props}
-import akka.http.scaladsl.model.HttpResponse
+import akka.http.scaladsl.model.{FormData, HttpResponse}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.pattern.ask
@@ -18,28 +18,33 @@ object SubscribeApi {
 
   def route(actorRef: ActorRef)(implicit timeout: Timeout): Route = {
     pathSingleSlash {
-      formField('Action ! "Subscribe") {
-        formFields('Endpoint, 'Protocol, 'TopicArn) { (endpoint, protocol, topicArn) =>
-          complete {
-            (actorRef ? CmdSubscribe(endpoint, protocol, topicArn)).mapTo[HttpResponse]
-          }
-        } ~
-          complete(HttpResponse(400, entity = "Endpoint, Protocol, TopicArn are required"))
-      } ~
-        formField('Action ! "ListSubscriptionsByTopic") {
-          formField('TopicArn) {
-            case arnPattern(topicArn) => complete {
-              (actorRef ? CmdListByTopic(topicArn)).mapTo[HttpResponse]
+      entity(as[FormData]) { entity =>
+        entity.fields.get("Action") match {
+          case Some("Subscribe") =>
+            val endpoint = entity.fields.get("Endpoint") 
+            val protocol = entity.fields.get("Protocol") 
+            val topicArn = entity.fields.get("TopicArn") 
+            if (endpoint.isDefined && protocol.isDefined && topicArn.isDefined) {
+              complete {
+                (actorRef ? CmdSubscribe(endpoint.get, protocol.get, topicArn.get)).mapTo[HttpResponse]
+              }
+            } else {
+              complete(HttpResponse(400, entity = "Endpoint, Protocol, TopicArn are required"))
             }
-            case _ => complete(HttpResponse(400, entity = "Invalid topic ARN"))
-          } ~
-            complete(HttpResponse(400, entity = "TopicArn is missing"))
-        } ~
-        formField('Action ! "ListSubscriptions") {
-          complete {
-            (actorRef ? CmdList()).mapTo[HttpResponse]
-          }
+          case Some("ListSubscriptionsByTopic") =>
+            entity.fields.getOrElse("TopicArn", "") match {
+              case arnPattern(topicArn) => complete {
+                (actorRef ? CmdListByTopic(topicArn)).mapTo[HttpResponse]
+              }
+              case _ => complete(HttpResponse(400, entity = "Invalid topic ARN"))
+            }
+          case Some("ListSubscriptions") =>
+            complete {
+              (actorRef ? CmdList()).mapTo[HttpResponse]
+            }
+          case default => reject()
         }
+      }
     }
   }
 }

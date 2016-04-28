@@ -1,7 +1,5 @@
 package me.snov.sns
 
-import java.util.concurrent.TimeUnit
-
 import akka.actor.ActorSystem
 import akka.event.{Logging, LoggingAdapter}
 import akka.http.scaladsl.Http
@@ -12,6 +10,7 @@ import akka.util.Timeout
 import me.snov.sns.api._
 import me.snov.sns.util.Config
 
+import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext
 
 object Main extends App with Config with HealthCheck {
@@ -19,20 +18,31 @@ object Main extends App with Config with HealthCheck {
   implicit val executor: ExecutionContext = system.dispatcher
   implicit val materializer: ActorMaterializer = ActorMaterializer()
   implicit val logger: LoggingAdapter = Logging(system, getClass)
-  implicit val timeout = new Timeout(1000, TimeUnit.MILLISECONDS)
+  implicit val timeout = new Timeout(1.second)
 
   val homeActor = system.actorOf(HomeActor.props, name = "HomeActor")
   val topicActor = system.actorOf(TopicActor.props, name = "TopicActor")
   val subscribeActor = system.actorOf(SubscribeActor.props, name = "SubscribeActor")
   val publishActor = system.actorOf(PublishActor.props(subscribeActor), name = "PublishActor")
 
-  val routes: Route = {
+  val toStrict = mapInnerRoute { innerRoute =>
+    extractRequest { req =>
+      onSuccess(req.toStrict(1.second)) { strictReq =>
+        mapRequest(_ => strictReq) {
+          innerRoute
+        }
+      }
+    }
+  }
+
+  val routes: Route =
+    toStrict {
       TopicApi.route(topicActor) ~
       SubscribeApi.route(subscribeActor) ~
       PublishApi.route(publishActor) ~
       healthCheckRoutes ~
       HomeApi.route(homeActor)
-  }
+    }
 
   Http().bindAndHandle(
     handler = logRequestResult("akka-http-sns")(routes),

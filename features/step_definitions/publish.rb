@@ -18,3 +18,7 @@ end
 Then(/^I should not see "([^"]*)" in file "([^"]*)"$/) do |message, file|
   expect(file_contains_string(file, message)).to be_falsey
 end
+
+Then(/^I sleep for (\d+) seconds$/) do |n|
+  sleep(n.to_i)
+end

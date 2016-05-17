@@ -23,7 +23,7 @@ install:
   - if [ "$SDK" = "php" ]; then docker run -it -v "$PWD":/tmp -w /tmp php:7-cli php composer.phar install; fi
 
 before_script:
-  - if [ "$SDK" != "none" ]; then sbt run > log.txt & fi
+  - if [ "$SDK" != "none" ]; then sbt run > log.txt & ; fi
   - if [ "$SDK" != "none" ]; then bash <(curl -s https://raw.githubusercontent.com/s12v/wait4port/master/wait4port.sh) localhost:9911; fi
 
 script:

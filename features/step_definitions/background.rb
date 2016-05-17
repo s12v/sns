@@ -52,7 +52,3 @@ Given('AWS-SDK client') do
   
   $client = Aws::SNS::Client.new(config)
 end
-
-Given(/^Lambda function "([^"]*)"$/) do |lambda|
-  $lambda_arn = lambda
-end

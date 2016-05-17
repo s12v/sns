@@ -17,9 +17,10 @@ libraryDependencies ++= {
     "org.slf4j" % "slf4j-api" % "1.7.2",
     "ch.qos.logback" % "logback-classic" % "1.0.7",
     "com.typesafe.akka" %% "akka-camel" % "2.3.15",
-    "org.apache.camel" % "camel-slack" % "2.17.0",
-    "org.apache.camel" % "camel-rabbitmq" % "2.17.0",
     "org.apache.camel" % "camel-aws" % "2.17.0",
+    "org.apache.camel" % "camel-http" % "2.17.0",
+    "org.apache.camel" % "camel-rabbitmq" % "2.17.0",
+    "org.apache.camel" % "camel-slack" % "2.17.0",
     
     "org.scalatest"     %% "scalatest" % "2.2.6" % Test
   )

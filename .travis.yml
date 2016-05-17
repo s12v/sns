@@ -1,4 +1,4 @@
-sudo: false
+sudo: required
 
 language: scala
 
@@ -7,21 +7,32 @@ scala:
 
 jdk:
   - oraclejdk8
-  
+
+env:
+  matrix:
+    - SDK=none
+    - SDK=ruby
+    - SDK=php
+
 cache:
   - bundler
 
 install:
-  - bundle install
+  - if [ "$SDK" = "ruby" ]; then bundle install; fi
+  - if [ "$SDK" = "php" ]; then wget https://getcomposer.org/download/1.1.1/composer.phar; fi
+  - if [ "$SDK" = "php" ]; then docker run -it -v "$PWD":/tmp -w /tmp php:7-cli php composer.phar install; fi
+
+before_script:
+  - if [ "$SDK" != "none" ]; then sbt run > log.txt & fi
+  - if [ "$SDK" != "none" ]; then bash <(curl -s https://raw.githubusercontent.com/s12v/wait4port/master/wait4port.sh) localhost:9911; fi
 
 script:
-  - sbt clean coverage test
-  - sbt run > log.txt &
-  - while ! curl --silent localhost:9911; do echo "⌛" && sleep 2; done
-  - AWS_ACCESS_KEY_ID=foo AWS_SECRET_ACCESS_KEY=bar ENDPOINT=http://localhost:9911/ bundle exec cucumber
+  - if [ "$SDK" = "none" ]; then sbt clean coverage test; fi
+  - if [ "$SDK" = "ruby" ]; then AWS_ACCESS_KEY_ID=foo AWS_SECRET_ACCESS_KEY=bar ENDPOINT=http://localhost:9911/ bundle exec cucumber; fi
+  - if [ "$SDK" = "php" ]; then docker run -it --rm -e "ENDPOINT=http://localhost:9911" -v "$PWD":/tmp -w /tmp --net=host php:7-cli bin/behat; fi
 
 after_failure:
-  - cat log.txt
+  - if [ "$SDK" != "none" ]; then cat log.txt; fi
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - if [ "$SDK" = "none" ]; then bash <(curl -s https://codecov.io/bash); fi

@@ -12,6 +12,6 @@ Feature: Publish
     When I publish a message "Hello, World!" to topic "cucumber1"
     When I publish a message "foo!" to topic "cucumber2"
     Then The publish request should be successful
-    Then I sleep for 1 seconds
+    Then I wait for 1 seconds
     Then I should see "Hello, World" in file "./tmp/sns1.txt"
     Then I should not see "Hello, World" in file "./tmp/sns2.txt"

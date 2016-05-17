@@ -16,6 +16,9 @@ env:
 
 cache:
   - bundler
+  
+service:
+  - docker
 
 install:
   - if [ "$SDK" = "ruby" ]; then bundle install; fi

@@ -17,7 +17,7 @@ env:
 cache:
   - bundler
   
-service:
+services:
   - docker
 
 install:

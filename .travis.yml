@@ -17,14 +17,14 @@ services:
 install:
   - bundle install
   - wget https://getcomposer.org/download/1.1.1/composer.phar
-  - docker run -it -v "$PWD":/tmp -w /tmp composer/composer:1-alpine composer install
+  - docker run -it -v "$PWD":/tmp -w /tmp composer/composer:1-alpine install
 
 script:
   - sbt clean coverage test
   - sbt run > log.txt &
   - bash <(curl -s https://raw.githubusercontent.com/s12v/wait4port/master/wait4port.sh) localhost:9911
 #  - AWS_ACCESS_KEY_ID=foo AWS_SECRET_ACCESS_KEY=bar ENDPOINT=http://localhost:9911/ bundle exec cucumber
-  - docker run -it -e "ENDPOINT=http://localhost:9911" -v "$PWD":/tmp -w /tmp --net=host composer/composer:1-alpine bin/behat
+  - docker run -it -e "ENDPOINT=http://localhost:9911" -v "$PWD":/tmp -w /tmp --net=host php/7-alpine bin/behat
 
 after_failure:
   - cat log.txt

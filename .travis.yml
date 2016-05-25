@@ -24,7 +24,7 @@ script:
   - sbt run > log.txt &
   - bash <(curl -s https://raw.githubusercontent.com/s12v/wait4port/master/wait4port.sh) localhost:9911
 #  - AWS_ACCESS_KEY_ID=foo AWS_SECRET_ACCESS_KEY=bar ENDPOINT=http://localhost:9911/ bundle exec cucumber
-  - docker run -it -e "ENDPOINT=http://localhost:9911" -v "$PWD":/tmp -w /tmp --net=host php/7-alpine bin/behat
+  - docker run -it -e "ENDPOINT=http://localhost:9911" -v "$PWD":/tmp -w /tmp --net=host php:7-alpine bin/behat
 
 after_failure:
   - cat log.txt

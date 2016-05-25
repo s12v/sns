@@ -8,12 +8,6 @@ scala:
 jdk:
   - oraclejdk8
 
-env:
-  matrix:
-    - SDK=none
-    - SDK=ruby
-    - SDK=php
-
 cache:
   - bundler
   

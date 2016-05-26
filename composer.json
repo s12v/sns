@@ -1,11 +1,10 @@
 {
-  "require-dev": {
-    "behat/behat": "~2.5"
-  },
   "config": {
     "bin-dir": "bin/"
   },
   "require": {
-    "aws/aws-sdk-php": "^3.18"
+    "aws/aws-sdk-php": "^3.18",
+    "behat/behat": "~2.5",
+    "phpunit/phpunit": "^5.3"
   }
 }

@@ -1,0 +1,10 @@
+{
+  "config": {
+    "bin-dir": "bin/"
+  },
+  "require": {
+    "aws/aws-sdk-php": "^3.18",
+    "behat/behat": "~2.5",
+    "phpunit/phpunit": "^5.3"
+  }
+}

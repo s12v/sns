@@ -1,4 +1,4 @@
-sudo: false
+sudo: required
 
 language: scala
 
@@ -7,18 +7,29 @@ scala:
 
 jdk:
   - oraclejdk8
-  
+
 cache:
   - bundler
+  
+services:
+  - docker
 
 install:
   - bundle install
+  - docker run -it -v "$PWD":/tmp -w /tmp composer/composer:1-alpine install
 
 script:
   - sbt clean coverage test
   - sbt run > log.txt &
-  - while ! curl --silent localhost:9911; do echo "⌛" && sleep 2; done
+  - bash <(curl -s https://raw.githubusercontent.com/s12v/wait4port/master/wait4port.sh) localhost:9911
   - AWS_ACCESS_KEY_ID=foo AWS_SECRET_ACCESS_KEY=bar ENDPOINT=http://localhost:9911/ bundle exec cucumber
+  - >
+    docker run -it
+    -e ENDPOINT="http://localhost:9911"
+    -e AWS_ACCESS_KEY_ID="foo"
+    -e AWS_SECRET_ACCESS_KEY="bar"
+    -v "$PWD":/tmp -w /tmp --net=host php:7-alpine
+    bin/behat
 
 after_failure:
   - cat log.txt

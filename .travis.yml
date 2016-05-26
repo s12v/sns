@@ -22,7 +22,7 @@ script:
   - sbt clean coverage test
   - sbt run > log.txt &
   - bash <(curl -s https://raw.githubusercontent.com/s12v/wait4port/master/wait4port.sh) localhost:9911
-#  - AWS_ACCESS_KEY_ID=foo AWS_SECRET_ACCESS_KEY=bar ENDPOINT=http://localhost:9911/ bundle exec cucumber
+  - AWS_ACCESS_KEY_ID=foo AWS_SECRET_ACCESS_KEY=bar ENDPOINT=http://localhost:9911/ bundle exec cucumber
   - >
     docker run -it
     -e ENDPOINT="http://localhost:9911"

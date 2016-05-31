@@ -9,8 +9,9 @@ jdk:
   - oraclejdk8
 
 env:
-  - AWS_ACCESS_KEY_ID=foo
-  - AWS_SECRET_ACCESS_KEY=bar
+  global:
+    - AWS_ACCESS_KEY_ID=foo
+    - AWS_SECRET_ACCESS_KEY=bar
 
 cache:
   - bundler

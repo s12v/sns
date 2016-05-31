@@ -2,8 +2,8 @@ package me.snov.sns.api
 
 import akka.http.scaladsl.server.Directives._
 
-trait HealthCheck {
-  val healthCheckRoutes =
+object HealthCheckApi {
+  val route =
     path("health") {
       get {
         complete("OK")

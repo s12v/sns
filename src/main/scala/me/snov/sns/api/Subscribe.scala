@@ -9,7 +9,9 @@ import akka.http.scaladsl.server.Route
 import akka.pattern.ask
 import akka.util.Timeout
 import me.snov.sns.api.SubscribeActor._
-import me.snov.sns.model.Message
+import me.snov.sns.config.DbActor.CmdSave
+import me.snov.sns.model.{SubscriptionConfiguration, Message}
+import me.snov.sns.response.XmlHttpResponse
 
 import scala.collection.mutable
 
@@ -21,7 +23,10 @@ object SubscribeApi {
       formField('Action ! "Subscribe") {
         formFields('Endpoint, 'Protocol, 'TopicArn) { (endpoint, protocol, topicArn) =>
           complete {
-            (actorRef ? CmdSubscribe(endpoint, protocol, topicArn)).mapTo[HttpResponse]
+            val configuration = SubscriptionConfiguration(
+              topicArn = topicArn, protocol = protocol, endpoint = endpoint
+            )
+            (actorRef ? CmdSubscribe(configuration)).mapTo[HttpResponse]
           }
         } ~
           complete(HttpResponse(400, entity = "Endpoint, Protocol, TopicArn are required"))
@@ -73,16 +78,16 @@ object SubscribeResponses extends XmlHttpResponse {
                 {subscription.owner}
               </Owner>
               <Protocol>
-                {subscription.protocol}
+                {subscription.configuration.protocol}
               </Protocol>
               <Endpoint>
-                {subscription.endpoint}
+                {subscription.configuration.endpoint}
               </Endpoint>
               <SubscriptionArn>
                 {subscription.subscriptionArn}
               </SubscriptionArn>
               <TopicArn>
-                {subscription.topicArn}
+                {subscription.configuration.topicArn}
               </TopicArn>
             </member>
           )}
@@ -108,16 +113,16 @@ object SubscribeResponses extends XmlHttpResponse {
                 {subscription.owner}
               </Owner>
               <Protocol>
-                {subscription.protocol}
+                {subscription.configuration.protocol}
               </Protocol>
               <Endpoint>
-                {subscription.endpoint}
+                {subscription.configuration.endpoint}
               </Endpoint>
               <SubscriptionArn>
                 {subscription.subscriptionArn}
               </SubscriptionArn>
               <TopicArn>
-                {subscription.topicArn}
+                {subscription.configuration.topicArn}
               </TopicArn>
             </member>
           )}
@@ -132,24 +137,25 @@ object SubscribeResponses extends XmlHttpResponse {
 }
 
 object SubscribeActor {
-  def props = Props[SubscribeActor]
+  def props(dbActor: ActorRef) = Props(new SubscribeActor(dbActor))
 
-  case class CmdSubscribe(endpoint: String, protocol: String, topicArn: String)
+  case class CmdSubscribe(configuration: SubscriptionConfiguration)
 
   case class CmdList()
+  
+  case class CmdSubscriptionConfigurations()
 
   case class CmdListByTopic(topicArn: String)
 
   case class CmdFanOut(topicArn: String, message: Message)
 
-  case class Subscription(topicArn: String, protocol: String, endpoint: String, actorRef: ActorRef) {
+  case class Subscription(configuration: SubscriptionConfiguration, actorRef: ActorRef) {
     val subscriptionArn = UUID.randomUUID().toString
     val owner = ""
   }
-
 }
 
-class SubscribeActor extends Actor with ActorLogging {
+class SubscribeActor(dbActor: ActorRef) extends Actor with ActorLogging {
 
   var subscriptions = mutable.HashMap.empty[String, List[Subscription]]
 
@@ -157,18 +163,23 @@ class SubscribeActor extends Actor with ActorLogging {
     subscriptions.get(topicArn) match {
       case Some(ss: List[Subscription]) =>
         ss.foreach((s: Subscription) => {
-          log.info(s"Sending message ${message.uuid} to ${s.endpoint}")
+          log.info(s"Sending message ${message.uuid} to ${s.configuration.endpoint}")
           s.actorRef ! message.body
         })
       case None => log.warning(s"Topic not found: $topicArn")
     }
   }
 
-  private def subscribe(endpoint: String, protocol: String, topicArn: String): HttpResponse = {
-    val producer = context.system.actorOf(SnsProducer.props(endpoint))
-    val subscription = new Subscription(topicArn, protocol, endpoint, producer)
-    subscriptions.put(topicArn, subscription :: subscriptions.getOrElse(topicArn, List()))
+  private def subscribe(configuration: SubscriptionConfiguration): HttpResponse = {
+    val producer = context.system.actorOf(SnsProducer.props(configuration.endpoint))
+    val subscription = new Subscription(configuration, producer)
+    subscriptions.put(
+      subscription.configuration.topicArn,
+      subscription :: subscriptions.getOrElse(subscription.configuration.topicArn, List())
+    )
 
+//    dbActor ! CmdSave(subscriptions.values.flatten)
+    
     SubscribeResponses.subscribe(subscription.subscriptionArn)
   }
 
@@ -180,10 +191,15 @@ class SubscribeActor extends Actor with ActorLogging {
     SubscribeResponses.list(subscriptions.values.flatten)
   }
 
+  private def listConfigurations() = {
+    subscriptions.values.flatten.map(_.configuration)
+  }
+
   override def receive = {
-    case CmdSubscribe(endpoint, protocol, topicArn) => sender ! subscribe(endpoint, protocol, topicArn)
+    case CmdSubscribe(subscription) => sender ! subscribe(subscription)
     case CmdListByTopic(topicArn) => sender ! listByTopic(topicArn)
     case CmdList() => sender ! list()
+    case CmdSubscriptionConfigurations() => sender ! listConfigurations()
     case CmdFanOut(topicArn, message) => fanOut(topicArn, message)
     case _ => sender ! HttpResponse(500, entity = "Invalid message")
   }

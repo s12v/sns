@@ -8,6 +8,10 @@ scala:
 jdk:
   - oraclejdk8
 
+env:
+  - AWS_ACCESS_KEY_ID=foo
+  - AWS_SECRET_ACCESS_KEY=bar
+
 cache:
   - bundler
   
@@ -22,12 +26,10 @@ script:
   - sbt clean coverage test
   - sbt run > log.txt &
   - bash <(curl -s https://raw.githubusercontent.com/s12v/wait4port/master/wait4port.sh) localhost:9911
-  - AWS_ACCESS_KEY_ID=foo AWS_SECRET_ACCESS_KEY=bar ENDPOINT=http://localhost:9911/ bundle exec cucumber
+  - ENDPOINT=http://localhost:9911/ bundle exec cucumber
   - >
     docker run -it
     -e ENDPOINT="http://localhost:9911"
-    -e AWS_ACCESS_KEY_ID="foo"
-    -e AWS_SECRET_ACCESS_KEY="bar"
     -v "$PWD":/tmp -w /tmp --net=host php:7-alpine
     bin/behat
 

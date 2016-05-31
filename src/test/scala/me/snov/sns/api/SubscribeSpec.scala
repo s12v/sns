@@ -8,6 +8,7 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.testkit.{TestActor, TestProbe}
 import akka.util.Timeout
 import me.snov.sns.api.SubscribeActor.{CmdListByTopic, CmdList, CmdSubscribe}
+import me.snov.sns.model.SubscriptionConfiguration
 import org.scalatest.{Matchers, WordSpec}
 
 class SubscribeSpec extends WordSpec with Matchers with ScalatestRouteTest {
@@ -52,7 +53,8 @@ class SubscribeSpec extends WordSpec with Matchers with ScalatestRouteTest {
       }
     })
     Post("/", FormData(params)) ~> route ~> check {
-      probe.expectMsg(CmdSubscribe("aaa", "bbb", "ccc"))
+      val configuration = SubscriptionConfiguration("aaa", "bbb", "ccc")
+      probe.expectMsg(CmdSubscribe(configuration))
     }
   }
 

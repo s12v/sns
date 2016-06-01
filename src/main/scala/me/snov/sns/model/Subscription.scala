@@ -1,15 +1,15 @@
 package me.snov.sns.model
 
-import java.util.UUID
+import spray.json._
 
-import akka.actor.ActorRef
-import spray.json.DefaultJsonProtocol
+case class Subscription(
+                         arn: String,
+                         owner: String,
+                         topicArn: String,
+                         protocol: String,
+                         endpoint: String
+                       )
 
-case class Subscription(topicArn: String, protocol: String, endpoint: String, actorRef: ActorRef) {
-  val subscriptionArn = UUID.randomUUID().toString
-  val owner = ""
+object SubscriptionJsonProtocol extends DefaultJsonProtocol {
+  implicit val format = jsonFormat5(Subscription)
 }
-
-//object SubscriptionConfigurationJsonProtocol extends DefaultJsonProtocol {
-//  //  implicit val format = jsonFormat3(SubscriptionConfiguration)
-//}

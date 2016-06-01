@@ -8,7 +8,7 @@ import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
-import me.snov.sns.actor.{SubscribeActor, PublishActor, HomeActor, TopicActor}
+import me.snov.sns.actor._
 import me.snov.sns.api._
 
 import scala.concurrent.ExecutionContext
@@ -23,11 +23,10 @@ object Main extends App {
 
   val config = ConfigFactory.load()
 
-  //  val dbActor = system.actorOf(DbActor.props, name = "DbActor")
+  val dbActor = system.actorOf(DbActor.props, name = "DbActor")
   val homeActor = system.actorOf(HomeActor.props, name = "HomeActor")
-  val topicActor = system.actorOf(TopicActor.props, name = "TopicActor")
-//  val subscribeActor = system.actorOf(SubscribeActor.props(dbActor), name = "SubscribeActor")
-  val subscribeActor = system.actorOf(SubscribeActor.props(homeActor), name = "SubscribeActor")
+  val topicActor = system.actorOf(TopicActor.props(dbActor), name = "TopicActor")
+  val subscribeActor = system.actorOf(SubscribeActor.props(dbActor), name = "SubscribeActor")
   val publishActor = system.actorOf(PublishActor.props(subscribeActor), name = "PublishActor")
 
   val toStrict = mapInnerRoute { innerRoute =>

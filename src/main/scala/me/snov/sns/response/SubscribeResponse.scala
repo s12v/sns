@@ -11,7 +11,7 @@ object SubscribeResponse extends XmlHttpResponse {
       <SubscribeResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
         <SubscribeResult>
           <SubscriptionArn>
-            {subscription.subscriptionArn}
+            {subscription.arn}
           </SubscriptionArn>
         </SubscribeResult>
         <ResponseMetadata>
@@ -40,7 +40,7 @@ object SubscribeResponse extends XmlHttpResponse {
                 {subscription.endpoint}
               </Endpoint>
               <SubscriptionArn>
-                {subscription.subscriptionArn}
+                {subscription.arn}
               </SubscriptionArn>
               <TopicArn>
                 {subscription.topicArn}
@@ -75,7 +75,7 @@ object SubscribeResponse extends XmlHttpResponse {
                 {subscription.endpoint}
               </Endpoint>
               <SubscriptionArn>
-                {subscription.subscriptionArn}
+                {subscription.arn}
               </SubscriptionArn>
               <TopicArn>
                 {subscription.topicArn}

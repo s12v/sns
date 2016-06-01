@@ -48,7 +48,7 @@ class SubscribeSpec extends WordSpec with Matchers with ScalatestRouteTest {
 
     probe.setAutoPilot(new TestActor.AutoPilot {
       def run(sender: ActorRef, msg: Any) = {
-        sender ! Subscription("aaa", "bbb", "ccc", sender)
+        sender ! Subscription("foo", "bar", "aaa", "bbb", "ccc")
         this
       }
     })

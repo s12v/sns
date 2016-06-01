@@ -1,11 +1,11 @@
 package me.snov.sns.actor
 
-import akka.actor.Status.{Success, Failure}
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import akka.http.scaladsl.model.HttpResponse
-import me.snov.sns.model.{Message, Subscription}
+import java.util.UUID
 
-import scala.collection.mutable
+import akka.actor.Status.{Failure, Success}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import me.snov.sns.actor.DbActor.CmdSaveSubscriptions
+import me.snov.sns.model.{Message, Subscription}
 
 object SubscribeActor {
   def props(dbActor: ActorRef) = Props(new SubscribeActor(dbActor))
@@ -22,32 +22,39 @@ object SubscribeActor {
 class SubscribeActor(dbActor: ActorRef) extends Actor with ActorLogging {
   import me.snov.sns.actor.SubscribeActor._
 
-  // todo immutable
-  var subscriptions = mutable.HashMap.empty[String, List[Subscription]]
+  var subscriptions = Map[String, List[Subscription]]()
+  var actorPool = Map[Subscription, ActorRef]()
 
   private def fanOut(topicArn: String, message: Message) = {
-    subscriptions.get(topicArn) match {
-      case Some(ss: List[Subscription]) =>
-        ss.foreach((s: Subscription) => {
-          log.debug(s"Sending message ${message.uuid} to ${s.endpoint}")
-          s.actorRef ! message.body
-        })
-        Success
-      case None =>
-        log.warning(s"Topic not found: $topicArn")
-        Failure
+    try {
+      subscriptions.get(topicArn) match {
+        case Some(ss: List[Subscription]) =>
+          ss.foreach((s: Subscription) => {
+            if (actorPool.contains(s)) {
+              log.debug(s"Sending message ${message.uuid} to ${s.endpoint}")
+              actorPool(s) ! message.body
+            } else {
+              throw new RuntimeException(s"No actor for subscription ${s.endpoint}")
+            }
+          })
+        case None => throw new RuntimeException(s"Topic not found: $topicArn")
+      }
+      
+      Success
+    } catch {
+      case e: RuntimeException => Failure
     }
   }
 
   private def subscribe(topicArn: String, protocol: String, endpoint: String): Subscription = {
     val producer = context.system.actorOf(ProducerActor.props(endpoint))
-    val subscription = new Subscription(topicArn, protocol, endpoint, producer)
-    subscriptions.put(
-      subscription.topicArn,
-      subscription :: subscriptions.getOrElse(subscription.topicArn, List())
-    )
+    val subscription = new Subscription(UUID.randomUUID().toString, "", topicArn, protocol, endpoint)
+    val listByTopic = subscription :: subscriptions.getOrElse(subscription.topicArn, List())
 
-//    dbActor ! CmdSave(subscriptions.values.flatten)
+    actorPool += (subscription -> producer)
+    subscriptions += (subscription.topicArn -> listByTopic)
+
+    dbActor ! CmdSaveSubscriptions(list())
     
     subscription
   }
@@ -65,6 +72,5 @@ class SubscribeActor(dbActor: ActorRef) extends Actor with ActorLogging {
     case CmdListByTopic(topicArn) => sender ! listByTopic(topicArn)
     case CmdList() => sender ! list()
     case CmdFanOut(topicArn, message) => sender ! fanOut(topicArn, message)
-    case _ => sender ! HttpResponse(500, entity = "Invalid message")
   }
 }

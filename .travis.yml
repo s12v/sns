@@ -15,17 +15,21 @@ env:
     - AWS_SECRET_ACCESS_KEY=bar
 
 cache:
-  - bundler
-  
+  bundler: true
+  directories:
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt/boot/
+
 services:
   - docker
 
 install:
+  - sbt clean update
   - bundle install
   - docker run -it -v "$PWD":/tmp -w /tmp composer/composer:1-alpine install
 
 script:
-  - sbt clean coverage test
+  - sbt coverage test
   - sbt run > log.txt &
   - bash <(curl -s https://raw.githubusercontent.com/s12v/wait4port/master/wait4port.sh) localhost:9911
   - bundle exec cucumber

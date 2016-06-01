@@ -30,6 +30,8 @@ script:
   - ENDPOINT=http://localhost:9911/ bundle exec cucumber
   - >
     docker run -it
+    -e AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID"
+    -e AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY"
     -e ENDPOINT="http://localhost:9911"
     -v "$PWD":/tmp -w /tmp --net=host php:7-alpine
     bin/behat

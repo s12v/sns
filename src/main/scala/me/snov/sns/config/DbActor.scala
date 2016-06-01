@@ -3,10 +3,8 @@ package me.snov.sns.config
 import akka.actor.{ActorLogging, Actor, Props, ActorRef}
 import akka.pattern.ask
 import akka.util.Timeout
-import me.snov.sns.api.SubscribeActor.{CmdSubscriptionConfigurations, Subscription}
 import me.snov.sns.config.DbActor.CmdSave
 import spray.json._
-import me.snov.sns.model.SubscriptionConfigurationJsonProtocol._
 import scala.concurrent.duration._
 
 object DbActor {
@@ -20,7 +18,7 @@ class DbActor(subscribeActor: ActorRef, topicActor: ActorRef) extends Actor with
   
   def save() = {
     
-    val configurations = subscribeActor ? CmdSubscriptionConfigurations()
+//    val configurations = subscribeActor ? CmdSubscriptionConfigurations()
     
 //    subscriptions.foreach((s: Subscription) => {
 //      log.info(s.configuration.toJson.toString())

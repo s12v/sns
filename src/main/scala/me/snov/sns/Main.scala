@@ -8,7 +8,7 @@ import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
-import me.snov.sns.actor.{PublishActor, HomeActor, TopicActor}
+import me.snov.sns.actor.{SubscribeActor, PublishActor, HomeActor, TopicActor}
 import me.snov.sns.api._
 
 import scala.concurrent.ExecutionContext

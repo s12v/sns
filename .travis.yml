@@ -41,6 +41,9 @@ script:
     -v "$PWD":/tmp -w /tmp --net=host php:7-alpine
     bin/behat
 
+after_script:
+  - cat db.json
+
 after_failure:
   - cat log.txt
 

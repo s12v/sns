@@ -17,6 +17,7 @@ object TopicActor {
 }
 
 class TopicActor(dbActor: ActorRef) extends Actor {
+  import me.snov.sns.actor.DbActor.CmdSaveTopics
   import me.snov.sns.actor.TopicActor._
   
   var topics = Map[String, Topic]()
@@ -27,6 +28,9 @@ class TopicActor(dbActor: ActorRef) extends Actor {
       case None =>
         val topic = Topic(s"arn:aws:sns:us-east-1:${System.currentTimeMillis}:$name", name)
         topics += (topic.arn -> topic)
+        
+        dbActor ! CmdSaveTopics(topics.values)
+        
         topic
     }
   }

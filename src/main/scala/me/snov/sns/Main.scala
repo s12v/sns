@@ -10,9 +10,11 @@ import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
 import me.snov.sns.actor._
 import me.snov.sns.api._
+import me.snov.sns.service.DbService
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
+import scala.util.Properties
 
 object Main extends App {
   implicit val system = ActorSystem("sns")
@@ -22,8 +24,10 @@ object Main extends App {
   implicit val timeout = new Timeout(1.second)
 
   val config = ConfigFactory.load()
+  val dbFilePath = Properties.envOrElse("DB", config.getString("db.path"))
+  val dbService = new DbService(dbFilePath)
 
-  val dbActor = system.actorOf(DbActor.props, name = "DbActor")
+  val dbActor = system.actorOf(DbActor.props(dbService), name = "DbActor")
   val homeActor = system.actorOf(HomeActor.props, name = "HomeActor")
   val topicActor = system.actorOf(TopicActor.props(dbActor), name = "TopicActor")
   val subscribeActor = system.actorOf(SubscribeActor.props(dbActor), name = "SubscribeActor")

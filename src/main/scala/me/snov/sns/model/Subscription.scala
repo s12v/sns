@@ -10,6 +10,6 @@ case class Subscription(
                          endpoint: String
                        )
 
-object SubscriptionJsonProtocol extends DefaultJsonProtocol {
-  implicit val format = jsonFormat5(Subscription)
+object Subscription extends DefaultJsonProtocol {
+  implicit val format = jsonFormat5(Subscription.apply)
 }

@@ -63,8 +63,8 @@ class SubscribeActor(dbActor: ActorRef) extends Actor with ActorLogging {
     subscriptions.getOrElse(topicArn, List())
   }
 
-  private def list(): Iterable[Subscription] = {
-    subscriptions.values.flatten
+  private def list(): List[Subscription] = {
+    subscriptions.values.flatten.toList
   }
 
   override def receive = {

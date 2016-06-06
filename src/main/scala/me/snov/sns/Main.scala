@@ -11,12 +11,13 @@ import com.typesafe.config.ConfigFactory
 import me.snov.sns.actor._
 import me.snov.sns.api._
 import me.snov.sns.service.DbService
+import me.snov.sns.util.ToStrict
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import scala.util.Properties
 
-object Main extends App {
+object Main extends App with ToStrict {
   implicit val system = ActorSystem("sns")
   implicit val executor: ExecutionContext = system.dispatcher
   implicit val materializer: ActorMaterializer = ActorMaterializer()
@@ -24,24 +25,13 @@ object Main extends App {
   implicit val timeout = new Timeout(1.second)
 
   val config = ConfigFactory.load()
-  val dbFilePath = Properties.envOrElse("DB", config.getString("db.path"))
-  val dbService = new DbService(dbFilePath)
+  val dbService = new DbService(Properties.envOrElse("DB", config.getString("db.path")))
 
   val dbActor = system.actorOf(DbActor.props(dbService), name = "DbActor")
   val homeActor = system.actorOf(HomeActor.props, name = "HomeActor")
   val topicActor = system.actorOf(TopicActor.props(dbActor), name = "TopicActor")
   val subscribeActor = system.actorOf(SubscribeActor.props(dbActor), name = "SubscribeActor")
   val publishActor = system.actorOf(PublishActor.props(subscribeActor), name = "PublishActor")
-
-  val toStrict = mapInnerRoute { innerRoute =>
-    extractRequest { req =>
-      onSuccess(req.toStrict(1.second)) { strictReq =>
-        mapRequest(_ => strictReq) {
-          innerRoute
-        }
-      }
-    }
-  }
 
   val routes: Route =
     toStrict {

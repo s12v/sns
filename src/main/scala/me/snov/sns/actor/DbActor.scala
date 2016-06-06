@@ -11,7 +11,7 @@ object DbActor {
 
   case class CmdSaveTopics(topics: List[Topic])
 
-  case class CmdConfiguration()
+  case class CmdGetConfiguration()
 }
 
 class DbActor(dbService: DbService) extends Actor with ActorLogging {
@@ -42,7 +42,7 @@ class DbActor(dbService: DbService) extends Actor with ActorLogging {
   }
   
   override def receive = {
-    case CmdConfiguration => replyWithConfiguration(sender)
+    case CmdGetConfiguration => replyWithConfiguration(sender)
     case CmdSaveSubscriptions(s) => saveSubscriptions(s)
     case CmdSaveTopics(t) => saveTopics(t)
   }

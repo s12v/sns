@@ -4,8 +4,8 @@ import java.util.UUID
 
 import akka.actor.Status.{Failure, Success}
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import me.snov.sns.actor.DbActor.CmdSaveSubscriptions
-import me.snov.sns.model.{Message, Subscription}
+import me.snov.sns.actor.DbActor.{CmdGetConfiguration, CmdSaveSubscriptions}
+import me.snov.sns.model.{Configuration, Message, Subscription}
 
 object SubscribeActor {
   def props(dbActor: ActorRef) = Props(new SubscribeActor(dbActor))
@@ -25,6 +25,8 @@ class SubscribeActor(dbActor: ActorRef) extends Actor with ActorLogging {
   var subscriptions = Map[String, List[Subscription]]()
   var actorPool = Map[Subscription, ActorRef]()
 
+  dbActor ! CmdGetConfiguration
+  
   private def fanOut(topicArn: String, message: Message) = {
     try {
       subscriptions.get(topicArn) match {
@@ -67,10 +69,18 @@ class SubscribeActor(dbActor: ActorRef) extends Actor with ActorLogging {
     subscriptions.values.flatten.toList
   }
 
+  def load(configuration: Configuration) = {
+    configuration.subscriptions.foreach{ subscription =>
+      subscribe(subscription.topicArn, subscription.protocol, subscription.endpoint)
+    }
+    log.info("Loaded subscriptions")
+  }
+
   override def receive = {
     case CmdSubscribe(topicArn, protocol, endpoint) => sender ! subscribe(topicArn, protocol, endpoint)
     case CmdListByTopic(topicArn) => sender ! listByTopic(topicArn)
     case CmdList() => sender ! list()
     case CmdFanOut(topicArn, message) => sender ! fanOut(topicArn, message)
+    case configuration: Configuration => load(configuration)
   }
 }

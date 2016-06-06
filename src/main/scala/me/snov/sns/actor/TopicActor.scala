@@ -3,7 +3,7 @@ package me.snov.sns.actor
 import akka.actor.Status.{Failure, Success}
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.util.Timeout
-import me.snov.sns.actor.DbActor.CmdConfiguration
+import me.snov.sns.actor.DbActor.CmdGetConfiguration
 import me.snov.sns.model.{Configuration, Topic}
 
 import scala.concurrent.duration._
@@ -28,17 +28,13 @@ class TopicActor(dbActor: ActorRef) extends Actor with ActorLogging {
   
   var topics = Map[String, Topic]()
 
-  dbActor ! CmdConfiguration
+  dbActor ! CmdGetConfiguration
 
   def load(configuration: Configuration) = {
-    var topics = Map[String, Topic]()
     configuration.topics.foreach { topic =>
       topics += (topic.arn -> topic)
     }
-    
-    this.topics = topics
     log.info("loaded topics")
-    log.info(this.topics.toString())
   }
   
   private def findOrCreateTopic(name: String): Topic = {
@@ -68,6 +64,6 @@ class TopicActor(dbActor: ActorRef) extends Actor with ActorLogging {
     case CmdDelete(arn) => sender ! delete(arn)
     case CmdList => sender ! topics.values
     case CmdArns => sender ! topics.keys
-    case c: Configuration => load(c)
+    case configuration: Configuration => load(configuration)
   }
 }

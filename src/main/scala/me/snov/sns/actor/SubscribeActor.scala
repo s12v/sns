@@ -13,20 +13,22 @@ object SubscribeActor {
   case class CmdSubscribe(topicArn: String, protocol: String, endpoint: String)
 
   case class CmdList()
-  
+
   case class CmdListByTopic(topicArn: String)
 
   case class CmdFanOut(topicArn: String, message: Message)
+
 }
 
 class SubscribeActor(dbActor: ActorRef) extends Actor with ActorLogging {
+
   import me.snov.sns.actor.SubscribeActor._
 
   var subscriptions = Map[String, List[Subscription]]()
   var actorPool = Map[Subscription, ActorRef]()
 
   dbActor ! CmdGetConfiguration
-  
+
   private def fanOut(topicArn: String, message: Message) = {
     try {
       subscriptions.get(topicArn) match {
@@ -41,7 +43,7 @@ class SubscribeActor(dbActor: ActorRef) extends Actor with ActorLogging {
           })
         case None => throw new RuntimeException(s"Topic not found: $topicArn")
       }
-      
+
       Success
     } catch {
       case e: RuntimeException => Failure
@@ -49,16 +51,19 @@ class SubscribeActor(dbActor: ActorRef) extends Actor with ActorLogging {
   }
 
   private def subscribe(topicArn: String, protocol: String, endpoint: String): Subscription = {
-    val producer = context.system.actorOf(ProducerActor.props(endpoint))
-    val subscription = new Subscription(UUID.randomUUID().toString, "", topicArn, protocol, endpoint)
+    val subscription = Subscription(UUID.randomUUID().toString, "", topicArn, protocol, endpoint)
+    subscribe(subscription)
+    dbActor ! CmdSaveSubscriptions(list())
+
+    subscription
+  }
+
+  private def subscribe(subscription: Subscription) = {
+    val producer = context.system.actorOf(ProducerActor.props(subscription.endpoint))
     val listByTopic = subscription :: subscriptions.getOrElse(subscription.topicArn, List())
 
     actorPool += (subscription -> producer)
     subscriptions += (subscription.topicArn -> listByTopic)
-
-    dbActor ! CmdSaveSubscriptions(list())
-    
-    subscription
   }
 
   private def listByTopic(topicArn: String): Iterable[Subscription] = {
@@ -70,9 +75,7 @@ class SubscribeActor(dbActor: ActorRef) extends Actor with ActorLogging {
   }
 
   def load(configuration: Configuration) = {
-    configuration.subscriptions.foreach{ subscription =>
-      subscribe(subscription.topicArn, subscription.protocol, subscription.endpoint)
-    }
+    configuration.subscriptions.foreach { subscribe }
     log.info("Loaded subscriptions")
   }
 

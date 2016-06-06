@@ -18,14 +18,17 @@ object TopicActor {
   case class CmdList()
 
   case class CmdArns()
+
 }
 
 class TopicActor(dbActor: ActorRef) extends Actor with ActorLogging {
+
   import me.snov.sns.actor.DbActor.CmdSaveTopics
   import me.snov.sns.actor.TopicActor._
+
   implicit val timeout = new Timeout(1.second)
   implicit val ec = context
-  
+
   var topics = Map[String, Topic]()
 
   dbActor ! CmdGetConfiguration
@@ -36,27 +39,36 @@ class TopicActor(dbActor: ActorRef) extends Actor with ActorLogging {
     }
     log.info("loaded topics")
   }
-  
+
   private def findOrCreateTopic(name: String): Topic = {
     topics.values.find(_.name == name) match {
       case Some(topic) => topic
       case None =>
         val topic = Topic(s"arn:aws:sns:us-east-1:${System.currentTimeMillis}:$name", name)
         topics += (topic.arn -> topic)
-        
-        dbActor ! CmdSaveTopics(topics.values.toList)
-        
+
+        save()
+
         topic
     }
   }
-  
+
   private def delete(arn: String) = {
     if (topics.isDefinedAt(arn)) {
       topics -= arn
+
+      // todo delete subscriptions by topic
+
+      save()
+
       Success
     } else {
       Failure
     }
+  }
+
+  private def save() = {
+    dbActor ! CmdSaveTopics(topics.values.toList)
   }
 
   override def receive = {

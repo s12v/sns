@@ -7,7 +7,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.pattern.ask
 import akka.util.Timeout
-import me.snov.sns.actor.TopicActor.{CmdCreate, CmdDelete, CmdList}
+import me.snov.sns.actor.SubscribeActor.{CmdListTopics, CmdDeleteTopic, CmdCreateTopic}
 import me.snov.sns.model.Topic
 import me.snov.sns.response.TopicResponse
 
@@ -22,7 +22,7 @@ object TopicApi {
       formField('Action ! "CreateTopic") {
         formField('Name) {
           case namePattern(name) => complete {
-            (actor ? CmdCreate(name)).mapTo[Topic].map {
+            (actor ? CmdCreateTopic(name)).mapTo[Topic].map {
               TopicResponse.create
             }
           }
@@ -33,7 +33,7 @@ object TopicApi {
       formField('Action ! "DeleteTopic") {
         formField('TopicArn) {
           case arnPattern(arn) => complete {
-            (actor ? CmdDelete(arn)).map {
+            (actor ? CmdDeleteTopic(arn)).map {
               case Success => TopicResponse.delete
               case _ => HttpResponse(404, entity = "NotFound")
             }
@@ -44,7 +44,7 @@ object TopicApi {
       } ~ 
       formField('Action ! "ListTopics") {
         complete {
-          (actor ? CmdList).mapTo[Iterable[Topic]].map {
+          (actor ? CmdListTopics).mapTo[Iterable[Topic]].map {
             TopicResponse.list
           }
         }

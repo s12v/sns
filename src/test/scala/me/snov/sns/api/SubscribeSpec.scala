@@ -7,7 +7,7 @@ import akka.http.scaladsl.model.{FormData, HttpResponse, StatusCodes}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.testkit.{TestActor, TestProbe}
 import akka.util.Timeout
-import me.snov.sns.actor.SubscribeActor.{CmdListByTopic, CmdList, CmdSubscribe}
+import me.snov.sns.actor.SubscribeActor.{CmdListSubscriptionsByTopic, CmdListSubscriptions, CmdSubscribe}
 import me.snov.sns.model.Subscription
 import org.scalatest.{Matchers, WordSpec}
 
@@ -66,7 +66,7 @@ class SubscribeSpec extends WordSpec with Matchers with ScalatestRouteTest {
       }
     })
     Post("/", FormData(params)) ~> route ~> check {
-      probe.expectMsg(CmdList())
+      probe.expectMsg(CmdListSubscriptions())
     }
   }
 
@@ -79,7 +79,7 @@ class SubscribeSpec extends WordSpec with Matchers with ScalatestRouteTest {
       }
     })
     Post("/", FormData(params)) ~> route ~> check {
-      probe.expectMsg(CmdListByTopic("foo"))
+      probe.expectMsg(CmdListSubscriptionsByTopic("foo"))
     }
   }
 }

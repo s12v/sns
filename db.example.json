@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "timestamp": 1465333526387,
+  "subscriptions": [
+    {
+      "arn": "c79ea186-e239-4516-98d0-ca469d2b61c5",
+      "topicArn": "arn:aws:sns:us-east-1:1465333526364:topic1",
+      "endpoint": "file:///tmp?fileName=sns.log",
+      "owner": "",
+      "protocol": "file"
+    },
+    {
+      "arn": "c79ea186-e239-4516-98d0-ca469d2b61c5",
+      "topicArn": "arn:aws:sns:us-east-1:1465333526364:topic1",
+      "endpoint": "...",
+      "owner": "",
+      "protocol": "sqs"
+    }
+  ],
+  "topics": [
+    {
+      "arn": "arn:aws:sns:us-east-1:1465333526364:topic1",
+      "name": "Demo topic 1"
+    }
+  ]
+}

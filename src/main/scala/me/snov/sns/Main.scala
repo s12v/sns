@@ -29,13 +29,12 @@ object Main extends App with ToStrict {
 
   val dbActor = system.actorOf(DbActor.props(dbService), name = "DbActor")
   val homeActor = system.actorOf(HomeActor.props, name = "HomeActor")
-  val topicActor = system.actorOf(TopicActor.props(dbActor), name = "TopicActor")
   val subscribeActor = system.actorOf(SubscribeActor.props(dbActor), name = "SubscribeActor")
   val publishActor = system.actorOf(PublishActor.props(subscribeActor), name = "PublishActor")
 
   val routes: Route =
     toStrict {
-      TopicApi.route(topicActor) ~
+      TopicApi.route(subscribeActor) ~
       SubscribeApi.route(subscribeActor) ~
       PublishApi.route(publishActor) ~
       HealthCheckApi.route ~

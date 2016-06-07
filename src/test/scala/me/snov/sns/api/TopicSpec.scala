@@ -7,7 +7,7 @@ import akka.http.scaladsl.model.{FormData, HttpResponse, StatusCodes}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.testkit.{TestActor, TestProbe}
 import akka.util.Timeout
-import me.snov.sns.actor.TopicActor.{CmdDelete, CmdCreate}
+import me.snov.sns.actor.SubscribeActor.{CmdDeleteTopic, CmdCreateTopic}
 import me.snov.sns.model.Topic
 import org.scalatest.{Matchers, WordSpec}
 
@@ -37,7 +37,7 @@ class TopicSpec extends WordSpec with Matchers with ScalatestRouteTest {
       }
     })
     Post("/", FormData(Map("Action" -> "CreateTopic", "Name" -> "foo"))) ~> route ~> check {
-      probe.expectMsg(CmdCreate("foo"))
+      probe.expectMsg(CmdCreateTopic("foo"))
     }
   }
 
@@ -49,7 +49,7 @@ class TopicSpec extends WordSpec with Matchers with ScalatestRouteTest {
       }
     })
     Post("/", FormData(Map("Action" -> "DeleteTopic", "TopicArn" -> "arn-foo"))) ~> route ~> check {
-      probe.expectMsg(CmdDelete("arn-foo"))
+      probe.expectMsg(CmdDeleteTopic("arn-foo"))
     }
   }
 }

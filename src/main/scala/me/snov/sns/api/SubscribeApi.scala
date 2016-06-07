@@ -6,7 +6,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.pattern.ask
 import akka.util.Timeout
-import me.snov.sns.actor.SubscribeActor.{CmdList, CmdListByTopic, CmdSubscribe}
+import me.snov.sns.actor.SubscribeActor.{CmdListSubscriptions, CmdListSubscriptionsByTopic, CmdSubscribe}
 import me.snov.sns.model.Subscription
 import me.snov.sns.response.SubscribeResponse
 
@@ -30,7 +30,7 @@ object SubscribeApi {
         formField('Action ! "ListSubscriptionsByTopic") {
           formField('TopicArn) {
             case arnPattern(topicArn) => complete {
-              (actorRef ? CmdListByTopic(topicArn)).mapTo[Iterable[Subscription]] map {
+              (actorRef ? CmdListSubscriptionsByTopic(topicArn)).mapTo[Iterable[Subscription]] map {
                 SubscribeResponse.listByTopic
               }
             }
@@ -40,7 +40,7 @@ object SubscribeApi {
         } ~
         formField('Action ! "ListSubscriptions") {
           complete {
-            (actorRef ? CmdList()).mapTo[Iterable[Subscription]] map {
+            (actorRef ? CmdListSubscriptions()).mapTo[Iterable[Subscription]] map {
               SubscribeResponse.list
             }
           }

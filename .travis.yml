@@ -26,12 +26,13 @@ services:
 install:
   - sbt clean update
   - bundle install
+  - docker run -d -p 9324:9324 s12v/elasticmq
   - docker run -it -v "$PWD":/tmp -w /tmp composer/composer:1-alpine install
 
 script:
   - sbt coverage test
   - sbt run > log.txt &
-  - bash <(curl -s https://raw.githubusercontent.com/s12v/wait4port/master/wait4port.sh) localhost:9911
+  - bash <(curl -s https://raw.githubusercontent.com/s12v/wait4port/master/wait4port.sh) localhost:9911 localhost:9324
   - bundle exec cucumber
   - >
     docker run -it

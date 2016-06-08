@@ -33,9 +33,9 @@ class FeatureContext extends BehatContext
     }
 
     /**
-     * @Given /^AWS-SDK client$/
+     * @Given /^AWS SNS client$/
      */
-    public function awsSdkClient()
+    public function awsSnsClient()
     {
         $config = [
             'version' => 'latest',

@@ -2,7 +2,7 @@
 Feature: Subscription
 
   Background:
-    Given AWS-SDK client
+    Given AWS SNS client
 
   Scenario: Subscribe
     Given I create a new topic "cucumber1"

@@ -1,26 +1,26 @@
 {
   "version": 1,
-  "timestamp": 1465333526387,
+  "timestamp": 1465414804110,
   "subscriptions": [
     {
-      "arn": "c79ea186-e239-4516-98d0-ca469d2b61c5",
-      "topicArn": "arn:aws:sns:us-east-1:1465333526364:topic1",
-      "endpoint": "file:///tmp?fileName=sns.log",
-      "owner": "",
-      "protocol": "file"
-    },
-    {
-      "arn": "c79ea186-e239-4516-98d0-ca469d2b61c5",
-      "topicArn": "arn:aws:sns:us-east-1:1465333526364:topic1",
-      "endpoint": "...",
+      "arn": "e9126059-9eab-4b37-8194-e0d64dfb2045",
+      "topicArn": "arn:aws:sns:us-east-1:1465414804035:test1",
+      "endpoint": "aws-sqs://queue1?amazonSQSEndpoint=http://localhost:9324&accessKey=&secretKey=",
       "owner": "",
       "protocol": "sqs"
+    },
+    {
+      "arn": "6df4ed2b-a650-4f7c-910a-1a89c7cae5a6",
+      "topicArn": "arn:aws:sns:us-east-1:1465414804035:test1",
+      "endpoint": "file://tmp?fileName=sns.log",
+      "owner": "",
+      "protocol": "file"
     }
   ],
   "topics": [
     {
-      "arn": "arn:aws:sns:us-east-1:1465333526364:topic1",
-      "name": "Demo topic 1"
+      "arn": "arn:aws:sns:us-east-1:1465414804035:test1",
+      "name": "test1"
     }
   ]
 }

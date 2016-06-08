@@ -1,7 +1,8 @@
+@topic
 Feature: SNS topics
 
   Background:
-    Given AWS-SDK client
+    Given AWS SNS client
 
   Scenario: Create topic
     When I create a new topic "cucumber1"

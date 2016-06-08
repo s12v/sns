@@ -1,11 +1,11 @@
 [![Build Status](https://travis-ci.org/s12v/sns.svg?branch=master)](https://travis-ci.org/s12v/sns)
 # SNS
 
-Amazon Simple Notification Service (SNS) limited clone for testing, supports:
+Fake Amazon Simple Notification Service (SNS) for testing. Supports:
  - Create/List/Delete topics
  - Subscribe endpoint
  - Publish message
- - Subscription percistanse
+ - Subscription persistence
  - Integrations with SQS, File, HTTP, RabbitMQ, Slack
 
 ## Usage
@@ -71,3 +71,26 @@ Database `db.json`:
  - Slack: `slack:@username?webhookUrl=https://hooks.slack.com/services/aaa/bbb/ccc`
 
 See [camel documentation](http://camel.apache.org/components.html) for more details
+
+## Development
+
+Unit tests: `sbt test`
+
+It's tested with real AWS Ruby and PHP SDKs.
+
+Start elasticmq for SQS integration test
+```
+docker run -d -p 9324:9324 s12v/elasticmq
+```
+
+Ruby SDK tests:
+```
+bundle install
+ENDPOINT=http://localhost:9911 bundle exec cucumber
+```
+
+PHP SDK tests:
+```
+composer install
+./bin/behat
+```

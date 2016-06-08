@@ -1,21 +1,26 @@
 [![Build Status](https://travis-ci.org/s12v/sns.svg?branch=master)](https://travis-ci.org/s12v/sns)
 # SNS
 
-Amazon Simple Notification Service (SNS) limited clone for testing
+Amazon Simple Notification Service (SNS) limited clone for testing, supports:
+ - Create/List/Delete topics
+ - Subscribe endpoint
+ - Publish message
+ - Subscription percistanse
+ - Integrations with SQS, File, HTTP, RabbitMQ, Slack
 
 ## Usage
 
 ### Docker
 
 ```
-docker run -d -p 9911:9911 s12v/sns
+docker run -d -p 9911:9911 -e DB_PATH=/tmp/db.json s12v/sns
 ```
 
 ### Direct
 
 Download latest release from https://github.com/s12v/sns/releases and run:
 ```
-java -jar sns-0.0.1.jar
+DB_PATH=/tmp/db.json java -jar sns-0.0.1.jar
 ```
 
 ## Configuration

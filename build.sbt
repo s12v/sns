@@ -4,6 +4,8 @@ version := "0.0.1"
 
 scalaVersion := "2.11.8"
 
+assemblyJarName in assembly := s"sns-${version.value}.jar"
+
 libraryDependencies ++= {
   val akkaVersion = "2.4.4"
 

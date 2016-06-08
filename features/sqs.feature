@@ -13,5 +13,5 @@ Feature: SQS Integration
     When I publish a message "Hello, World!" to topic "test1"
     Then The publish request should be successful
     Then I wait for 1 seconds
-    Then I should see "Hello, World!" in file "./tmp/sns1.log"
+    Then I should see "Hello, World!" in file "./tmp/sns.log"
     Then I should see "Hello, World!" in queue "http://localhost:9324?QueueName=queue1"

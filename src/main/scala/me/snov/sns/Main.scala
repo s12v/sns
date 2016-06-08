@@ -25,7 +25,7 @@ object Main extends App with ToStrict {
   implicit val timeout = new Timeout(1.second)
 
   val config = ConfigFactory.load()
-  val dbService = new DbService(Properties.envOrElse("DB", config.getString("db.path")))
+  val dbService = new DbService(Properties.envOrElse("DB_PATH", config.getString("db.path")))
 
   val dbActor = system.actorOf(DbActor.props(dbService), name = "DbActor")
   val homeActor = system.actorOf(HomeActor.props, name = "HomeActor")
@@ -43,7 +43,7 @@ object Main extends App with ToStrict {
 
   Http().bindAndHandle(
     handler = logRequestResult("akka-http-sns")(routes),
-    interface = config.getString("http.interface"),
-    port = config.getInt("http.port")
+    interface = Properties.envOrElse("HTTP_INTERFACE", config.getString("http.interface")),
+    port = Properties.envOrElse("HTTP_PORT", config.getString("http.port")).toInt
   )
 }

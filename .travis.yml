@@ -30,7 +30,7 @@ install:
   - docker run -it -v "$PWD":/tmp -w /tmp composer/composer:1-alpine install
 
 script:
-  - sbt coverage test
+  - sbt coverage test assembly
   - sbt run > log.txt &
   - bash <(curl -s https://raw.githubusercontent.com/s12v/wait4port/master/wait4port.sh) localhost:9911 localhost:9324
   - bundle exec cucumber
@@ -42,11 +42,25 @@ script:
     -v "$PWD":/tmp -w /tmp --net=host php:7-alpine
     bin/behat
 
-after_script:
-  - cat db.json
-
 after_failure:
   - cat log.txt
+  - cat db.json
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+
+deploy:
+  provider: releases
+  api-key:
+    secure: "iMohs9rpYzhnYdUdCvh+t9crjoF2lcWuRlSCg+3kadXPt0V8lHoPMZio0wNROMtLTkLUqHcZgwHnvZ7T3PwfKrNAoZ7HnQbpXng3CApZgL68zQDwcykb0yOvZDopcjzZ/xPw29wnP8Sl5D6yelGakyx10AyjepHoesDc/hwnj8e0WYB2OflY6TiZja9n/tTXLr6wBhHnbe3b3t14WlRCM2w6CFfOGCo9bVGJG0V0kECZDz7hDYLbsmjhvpbEawUuNJAOM5AzrUetnbaA/TRjieDZF7/jhQiWsd4zlU4L0/JjGc+pNaz0aXk6Soyb4SfopQfIPoKMYYIwqiOkJxRmXCvLVTX6UMi6uUYR1CxpWPHnpVTt5eoEBAQMPHSfZfqz1AJ7PshSqn4iOgKDdw/MBOJFs/0qslE7e98bGQaAm2DwVP+LXw1EpPlC/q7C9TbQV0TP6FoGOyhQUYrF7ySgOfPnAdDoH7oPhrKyLWMrM5i3X0L5jQ7XIa2EgPxlWbsaT9v6SE4/Qo+D9rrfadmCNTWWa1med1OrcS4WWujz2YOKXmdRX5v1k6Wf2b9lok9qw9FpMHqAaC+tyo5kDoIjOzQS587uydm89u6g+TGEAGNyNHmkQj5fE/WaMcsOtq+VYGCFdoT/pvFJg9a4S1qzC6U67yoPjYgXT9++W9JHOro="
+  file: "$(ls $TRAVIS_BUILD_DIR/target/scala-2.11/sns-*.jar | tail -1)"
+  skip_cleanup: true
+  on:
+    tags: true
+    all_branches: true
+
+after_deploy:
+  - >
+    curl -H 'Content-Type: application/json'
+    --data '{"docker_tag": "$TRAVIS_TAG"}'
+    -X POST "https://registry.hub.docker.com/u/s12v/sns/trigger/${DOCKER_HUB_TRIGGER_TOKEN}/"

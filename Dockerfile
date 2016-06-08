@@ -5,8 +5,8 @@ EXPOSE 9911
 
 VOLUME /etc/sns
 
-ENV DB_PATH=/etc/sns/db.json VERSION=0.0.1
+ENV DB_PATH=/etc/sns/db.json
 
-ADD https://github.com/s12v/sns/releases/download/$VERSION/sns-$VERSION.jar /sns-$VERSION.jar
+ADD https://github.com/s12v/sns/releases/download/$VERSION/sns-0.0.1.jar /sns.jar
 
-CMD ["java", "-jar", "/sns-$VERSION.jar"]
+CMD ["java", "-jar", "/sns.jar"]

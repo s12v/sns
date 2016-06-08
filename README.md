@@ -16,9 +16,9 @@ Fake Amazon Simple Notification Service (SNS) for testing. Supports:
 docker run -d -p 9911:9911 -e DB_PATH=/tmp/db.json s12v/sns
 ```
 
-### Direct
+### Jar
 
-Download latest release from https://github.com/s12v/sns/releases and run:
+Download the latest release from https://github.com/s12v/sns/releases and run:
 ```
 DB_PATH=/tmp/db.json java -jar sns-0.0.1.jar
 ```
@@ -32,7 +32,7 @@ Configuration can be set via environment variables:
 
 ## Example fake SQS integration:
 
-Database `db.json`:
+Tested with [elasticmq](https://github.com/adamw/elasticmq). Database `db.json`:
 ```json
 {
   "version": 1,

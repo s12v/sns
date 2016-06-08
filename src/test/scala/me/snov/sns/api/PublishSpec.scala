@@ -7,7 +7,8 @@ import akka.http.scaladsl.model.{FormData, HttpResponse, StatusCodes}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.testkit.{TestActor, TestProbe}
 import akka.util.Timeout
-import me.snov.sns.api.PublishActor.CmdPublish
+import me.snov.sns.actor.PublishActor.CmdPublish
+import me.snov.sns.model.Message
 import org.scalatest.{Matchers, WordSpec}
 
 class PublishSpec extends WordSpec with Matchers with ScalatestRouteTest {
@@ -32,7 +33,7 @@ class PublishSpec extends WordSpec with Matchers with ScalatestRouteTest {
 
     probe.setAutoPilot(new TestActor.AutoPilot {
       def run(sender: ActorRef, msg: Any) = {
-        sender ! HttpResponse(200)
+        sender ! Message("foo")
         this
       }
     })

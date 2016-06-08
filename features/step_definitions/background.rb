@@ -11,7 +11,7 @@ After do
   @arns.each do |name, arn|
     puts "Remove topic #{name}"
     begin
-      $client.delete_topic(topic_arn: arn)
+      $SNS.delete_topic(topic_arn: arn)
     rescue Aws::SNS::Errors::NotFound
     end
   end
@@ -32,7 +32,7 @@ end
 # LOG=yes for logging
 # For live SNS see http://docs.aws.amazon.com/sdkforruby/api/index.html 
 
-Given('AWS-SDK client') do
+Given('AWS SNS client') do
   config = {
     region: 'us-east-1',
   }
@@ -50,5 +50,14 @@ Given('AWS-SDK client') do
     config[:logger] = Logger.new($stdout)
   end
   
-  $client = Aws::SNS::Client.new(config)
+  $SNS = Aws::SNS::Client.new(config)
+end
+
+Given('AWS SQS client') do
+  config = {
+    region: 'us-east-1',
+    endpoint: 'http://localhost:9324',
+  }
+
+  $SQS = Aws::SQS::Client.new(config)
 end

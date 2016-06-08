@@ -1,5 +1,5 @@
 When(/^I subscribe endpoint "([^"]*)" with protocol "([^"]*)" to topic "([^"]*)"$/) do |endpoint, protocol, topic|
-  @response = $client.subscribe({
+  @response = $SNS.subscribe({
     topic_arn: get_arn(topic),
     protocol: protocol,
     endpoint: endpoint,
@@ -11,7 +11,7 @@ Then(/^subscription should be successful$/) do
 end
 
 And(/^I list subscriptions for topic "([^"]*)"$/) do |topic|
-  @response = $client.list_subscriptions_by_topic({
+  @response = $SNS.list_subscriptions_by_topic({
     topic_arn: get_arn(topic)  
   })
 end
@@ -41,5 +41,5 @@ Then(/^I don't see endpoint "([^"]*)"$/) do |endpoint|
 end
 
 And(/^I list all subscriptions$/) do
-  @response = $client.list_subscriptions
+  @response = $SNS.list_subscriptions
 end

@@ -1,4 +1,4 @@
-package me.snov.sns.api
+package me.snov.sns.response
 
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
 

@@ -13,7 +13,7 @@ Fake Amazon Simple Notification Service (SNS) for testing. Supports:
 ### Docker
 
 ```
-docker run -d -p 9911:9911 -e DB_PATH=/tmp/db.json s12v/sns
+docker run -d -p 9911:9911 -v example:/etc/sns s12v/sns
 ```
 
 ### Jar
@@ -22,6 +22,7 @@ Download the latest release from https://github.com/s12v/sns/releases and run:
 ```
 DB_PATH=/tmp/db.json java -jar sns-0.0.1.jar
 ```
+Requires Java8.
 
 ## Configuration
 
@@ -33,6 +34,7 @@ Configuration can be set via environment variables:
 ## Example fake SQS integration:
 
 Tested with [elasticmq](https://github.com/adamw/elasticmq). Database `db.json`:
+
 ```json
 {
   "version": 1,
@@ -80,12 +82,7 @@ See [camel documentation](http://camel.apache.org/components.html) for more deta
 
 ### Integration tests
 
-It's tested with real AWS Ruby and PHP SDKs.
-
-#### elasticmq for SQS integration tests
-```
-docker run -d -p 9324:9324 s12v/elasticmq
-```
+It's tested with AWS Ruby and PHP SDKs.
 
 #### Ruby SDK tests:
 ```
@@ -97,4 +94,9 @@ ENDPOINT=http://localhost:9911 bundle exec cucumber
 ```
 composer install
 ./bin/behat
+```
+
+#### elasticmq for SQS integration tests
+```
+docker run -d -p 9324:9324 s12v/elasticmq
 ```

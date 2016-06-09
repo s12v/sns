@@ -30,7 +30,7 @@ install:
   - docker run -it -v "$PWD":/tmp -w /tmp composer/composer:1-alpine install
 
 script:
-  - sbt coverage test assembly
+  - sbt coverage assembly
   - sbt run > log.txt &
   - bash <(curl -s https://raw.githubusercontent.com/s12v/wait4port/master/wait4port.sh) localhost:9911 localhost:9324
   - bundle exec cucumber

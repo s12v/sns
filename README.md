@@ -74,22 +74,26 @@ See [camel documentation](http://camel.apache.org/components.html) for more deta
 
 ## Development
 
-Unit tests: `sbt test`
+### Unit tests
+
+`sbt test`
+
+### Integration tests
 
 It's tested with real AWS Ruby and PHP SDKs.
 
-Start elasticmq for SQS integration test
+#### elasticmq for SQS integration tests
 ```
 docker run -d -p 9324:9324 s12v/elasticmq
 ```
 
-Ruby SDK tests:
+#### Ruby SDK tests:
 ```
 bundle install
 ENDPOINT=http://localhost:9911 bundle exec cucumber
 ```
 
-PHP SDK tests:
+#### PHP SDK tests:
 ```
 composer install
 ./bin/behat

@@ -6,3 +6,5 @@
 /tmp
 /vendor
 /db.json
+/Gemfile.lock
+/composer.lock

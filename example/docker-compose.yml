@@ -1,0 +1,15 @@
+version: '2'
+services:
+  sns:
+    image: s12v/sns
+    ports:
+    - "9911:9911"
+    volumes:
+    - ./config:/etc/sns
+    depends_on:
+    - sqs
+  sqs:
+    image: s12v/elasticmq
+    ports:
+    - "9324:9324"
+ 

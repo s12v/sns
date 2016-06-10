@@ -20,7 +20,7 @@ docker run -d -p 9911:9911 -v example:/etc/sns s12v/sns
 
 Download the latest release from https://github.com/s12v/sns/releases and run:
 ```
-DB_PATH=/tmp/db.json java -jar sns-0.0.1.jar
+DB_PATH=/tmp/db.json java -jar sns-0.0.3.jar
 ```
 Requires Java8.
 

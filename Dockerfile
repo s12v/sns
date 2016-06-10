@@ -1,4 +1,4 @@
-FROM java:8-jre-alpine
+FROM java:7-jre-alpine
 MAINTAINER Sergey Novikov <snov@snov.me>
 
 EXPOSE 9911

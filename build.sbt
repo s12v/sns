@@ -4,23 +4,30 @@ version := "0.0.2"
 
 scalaVersion := "2.11.8"
 
+// sbt-coverage
+coverageEnabled.in(Test, test) := true
+
+// sbt-assembly
 assemblyJarName in assembly := s"sns-${version.value}.jar"
+test in assembly := {}
 
 libraryDependencies ++= {
-  val akkaVersion = "2.4.6"
+  val akkaVersion = "2.4.7"
+  val camelVersion = "2.17.0"
 
   Seq(
     "com.typesafe.akka" %% "akka-actor" % akkaVersion,
     "com.typesafe.akka" %% "akka-stream" % akkaVersion,
     "com.typesafe.akka" %% "akka-http-experimental" % akkaVersion,
     "com.typesafe.akka" %% "akka-http-xml-experimental" % akkaVersion,
-    "com.typesafe.akka" %% "akka-http-spray-json-experimental" % akkaVersion,
+    "com.typesafe.akka" %% "akka-http-spray-json-experimental" % akkaVersion
+    ,
     "com.typesafe.akka" %% "akka-http-testkit" % akkaVersion % Test,
 
     "org.slf4j" % "slf4j-api" % "1.7.2",
     "ch.qos.logback" % "logback-classic" % "1.0.7",
-    "com.typesafe.akka" %% "akka-camel" % "2.3.15",
-    "org.apache.camel" % "camel-aws" % "2.17.0"
+    "com.typesafe.akka" %% "akka-camel" % akkaVersion,
+    "org.apache.camel" % "camel-aws" % camelVersion
       exclude("com.amazonaws", "aws-java-sdk-acm")
       exclude("com.amazonaws", "aws-java-sdk-api-gateway")
       exclude("com.amazonaws", "aws-java-sdk-autoscaling")
@@ -55,6 +62,7 @@ libraryDependencies ++= {
       exclude("com.amazonaws", "aws-java-sdk-simpleworkflow")
       exclude("com.amazonaws", "aws-java-sdk-storagegateway")
       exclude("com.amazonaws", "aws-java-sdk-s3")
+      exclude("com.amazonaws", "aws-java-sdk-sqs")
       exclude("com.amazonaws", "aws-java-sdk-route53")
       exclude("com.amazonaws", "aws-java-sdk-kms")
       exclude("com.amazonaws", "aws-java-sdk-sts")
@@ -76,10 +84,11 @@ libraryDependencies ++= {
       exclude("com.amazonaws", "aws-java-sdk-elasticbeanstalk")
       exclude("com.amazonaws", "aws-java-sdk-ecr")
     ,
-    "org.apache.camel" % "camel-http" % "2.17.0",
-    "org.apache.camel" % "camel-rabbitmq" % "2.17.0",
-    "org.apache.camel" % "camel-slack" % "2.17.0",
-    
-    "org.scalatest"     %% "scalatest" % "2.2.6" % Test
+    "org.apache.camel" % "camel-http" % camelVersion,
+    "org.apache.camel" % "camel-rabbitmq" % camelVersion,
+    "org.apache.camel" % "camel-slack" % camelVersion
+      exclude("junit", "junit")
+    ,
+    "org.scalatest" %% "scalatest" % "2.2.6" % Test
   )
 }

@@ -51,6 +51,7 @@ after_failure:
   - cat db.json
 
 after_success:
+  - bash <(curl -s https://codecov.io/bash)
   - |
     if [ "$TRAVIS_BRANCH" = "master" ]; then
       curl -H 'Content-Type: application/json' --data '{"source_type": "Branch", "source_name": "master"}' \

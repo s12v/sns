@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/s12v/sns.svg?branch=master)](https://travis-ci.org/s12v/sns)
-# SNS
+[![codecov](https://codecov.io/gh/s12v/sns/branch/master/graph/badge.svg)](https://codecov.io/gh/s12v/sns)
+# Fake SNS
 
 Fake Amazon Simple Notification Service (SNS) for testing. Supports:
  - Create/List/Delete topics

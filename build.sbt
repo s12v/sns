@@ -4,9 +4,6 @@ version := "0.1.0"
 
 scalaVersion := "2.11.8"
 
-// sbt-coverage
-coverageEnabled.in(Test, test) := true
-
 // sbt-assembly
 assemblyJarName in assembly := s"sns-${version.value}.jar"
 test in assembly := {}

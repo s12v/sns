@@ -62,7 +62,6 @@ libraryDependencies ++= {
       exclude("com.amazonaws", "aws-java-sdk-simpleworkflow")
       exclude("com.amazonaws", "aws-java-sdk-storagegateway")
       exclude("com.amazonaws", "aws-java-sdk-s3")
-      exclude("com.amazonaws", "aws-java-sdk-sqs")
       exclude("com.amazonaws", "aws-java-sdk-route53")
       exclude("com.amazonaws", "aws-java-sdk-kms")
       exclude("com.amazonaws", "aws-java-sdk-sts")

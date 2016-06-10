@@ -30,7 +30,7 @@ install:
   - docker run -it -v "$PWD":/tmp -w /tmp composer/composer:1-alpine install
 
 script:
-  - sbt test
+  - sbt test coverage
   - sbt clean assembly
   - java -jar $(ls $TRAVIS_BUILD_DIR/target/scala-2.11/sns-*.jar | tail -1) > log.txt &
   - >

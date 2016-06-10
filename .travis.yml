@@ -48,11 +48,10 @@ after_failure:
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-  - >
+  - |
     if [ "$TRAVIS_BRANCH" = "master" ]; then
-      curl -H 'Content-Type: application/json'
-      --data '{"source_type": "Branch", "source_name": "master"}'
-      -X POST "https://registry.hub.docker.com/u/s12v/sns/trigger/${DOCKER_HUB_TRIGGER_TOKEN}/";
+      curl -H 'Content-Type: application/json' --data '{"source_type": "Branch", "source_name": "master"}' \
+      -X POST "https://registry.hub.docker.com/u/s12v/sns/trigger/${DOCKER_HUB_TRIGGER_TOKEN}/"
     fi
 
 deploy:

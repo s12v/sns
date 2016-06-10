@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/s12v/sns.svg?branch=master)](https://travis-ci.org/s12v/sns)
-# SNS
+[![codecov](https://codecov.io/gh/s12v/sns/branch/master/graph/badge.svg)](https://codecov.io/gh/s12v/sns)
+# Fake SNS
 
 Fake Amazon Simple Notification Service (SNS) for testing. Supports:
  - Create/List/Delete topics
@@ -20,7 +21,7 @@ docker run -d -p 9911:9911 -v example:/etc/sns s12v/sns
 
 Download the latest release from https://github.com/s12v/sns/releases and run:
 ```
-DB_PATH=/tmp/db.json java -jar sns-0.0.1.jar
+DB_PATH=/tmp/db.json java -jar sns-0.1.0.jar
 ```
 Requires Java8.
 

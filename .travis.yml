@@ -30,9 +30,13 @@ install:
   - docker run -it -v "$PWD":/tmp -w /tmp composer/composer:1-alpine install
 
 script:
-  - sbt coverage assembly
-  - sbt run > log.txt &
-  - bash <(curl -s https://raw.githubusercontent.com/s12v/wait4port/master/wait4port.sh) localhost:9911 localhost:9324
+  - sbt coverage test coverageReport
+  - sbt assembly
+  - java -jar $(ls $TRAVIS_BUILD_DIR/target/scala-2.11/sns-*.jar | tail -1) > log.txt &
+  - >
+    bash <(curl -s https://raw.githubusercontent.com/s12v/wait4port/master/wait4port.sh)
+    http://localhost:9911
+    http://localhost:9324
   - bundle exec cucumber
   - >
     docker run -it

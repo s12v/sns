@@ -38,7 +38,7 @@ object TopicApi {
               case _ => HttpResponse(404, entity = "NotFound")
             }
           }
-          case _ => complete(HttpResponse(400, entity = "Invalid topic name"))
+          case _ => complete(HttpResponse(400, entity = "Invalid topic ARN"))
         } ~
         complete(HttpResponse(404, entity = "NotFound"))
       } ~ 

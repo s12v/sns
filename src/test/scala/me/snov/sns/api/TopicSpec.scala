@@ -29,6 +29,12 @@ class TopicSpec extends WordSpec with Matchers with ScalatestRouteTest {
     }
   }
 
+  "TopicDelete validates topic name" in {
+    Post("/", FormData(Map("Action" -> "DeleteTopic", "TopicArn" -> "f$$"))) ~> route ~> check {
+      status shouldBe StatusCodes.BadRequest
+    }
+  }
+
   "Sends create command to actor" in {
     probe.setAutoPilot(new TestActor.AutoPilot {
       def run(sender: ActorRef, msg: Any) = {

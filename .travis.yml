@@ -20,9 +20,6 @@ cache:
     - $HOME/.ivy2/cache
     - $HOME/.sbt/boot/
 
-services:
-  - docker
-
 install:
   - sbt clean update
   - bundle install

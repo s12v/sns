@@ -48,7 +48,6 @@ after_failure:
   - cat db.json
 
 after_success:
-  - sbt coveralls
   - bash <(curl -s https://codecov.io/bash)
   - |
     if [ "$TRAVIS_BRANCH" = "master" ]; then

@@ -1,13 +1,13 @@
 name := "sns"
 
-version := "0.0.1"
+version := "0.0.2"
 
 scalaVersion := "2.11.8"
 
 assemblyJarName in assembly := s"sns-${version.value}.jar"
 
 libraryDependencies ++= {
-  val akkaVersion = "2.4.4"
+  val akkaVersion = "2.4.6"
 
   Seq(
     "com.typesafe.akka" %% "akka-actor" % akkaVersion,

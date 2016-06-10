@@ -30,8 +30,8 @@ install:
   - docker run -it -v "$PWD":/tmp -w /tmp composer/composer:1-alpine install
 
 script:
-  - sbt test coverage
-  - sbt assembly
+  - sbt test
+  - sbt clean assembly
   - java -jar $(ls $TRAVIS_BUILD_DIR/target/scala-2.11/sns-*.jar | tail -1) > log.txt &
   - >
     bash <(curl -s https://raw.githubusercontent.com/s12v/wait4port/master/wait4port.sh)
@@ -51,7 +51,6 @@ after_failure:
   - cat db.json
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
   - |
     if [ "$TRAVIS_BRANCH" = "master" ]; then
       curl -H 'Content-Type: application/json' --data '{"source_type": "Branch", "source_name": "master"}' \

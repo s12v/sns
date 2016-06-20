@@ -5,7 +5,7 @@
     {
       "arn": "e9126059-9eab-4b37-8194-e0d64dfb2045",
       "topicArn": "arn:aws:sns:us-east-1:1465414804035:test1",
-      "endpoint": "aws-sqs://queue1?amazonSQSEndpoint=http://localhost:9324&accessKey=&secretKey=",
+      "endpoint": "aws-sqs://queue1?amazonSQSEndpoint=http://sqs:9324&accessKey=&secretKey=",
       "owner": "",
       "protocol": "sqs"
     },

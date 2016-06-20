@@ -23,13 +23,6 @@ If you would like to keep the subscription database in the current host folder:
 docker run -d -p 9911:9911 -v "$PWD":/etc/sns s12v/sns
 ```
 
-#### Using aws-cli
-
-Create a topic:
-```
-docker exec <CONTAINER_ID> 'aws sns --endpoint-url http://localhost:9911 create-topic --name test1'
-```
-
 ### Jar
 
 Download the latest release from https://github.com/s12v/sns/releases and run:
@@ -54,6 +47,13 @@ See example/docker-compose.yml and example/config/db.json
 docker run -d -p 9911:9911 -v "$PWD/example/config":/etc/sns s12v/sns
 ```
 
+### Using aws-cli
+
+Create a topic:
+```
+docker exec <CONTAINER_ID> 'aws sns --endpoint-url http://localhost:9911 create-topic --name test1'
+```
+
 ## Supported integrations
 
  - Amazon SQS: `aws-sqs://queueName?amazonSQSEndpoint=...&accessKey=&secretKey=`
@@ -72,7 +72,10 @@ See [camel documentation](http://camel.apache.org/components.html) for more deta
 
 ### Integration tests
 
-It's tested with AWS Ruby and PHP SDKs.
+It's tested with AWS Ruby and PHP SDKs. Start elasticmq for SQS integration tests with
+```
+docker run -d -p 9324:9324 s12v/elasticmq
+```
 
 #### Ruby SDK tests:
 ```
@@ -84,9 +87,4 @@ ENDPOINT=http://localhost:9911 bundle exec cucumber
 ```
 composer install
 ./bin/behat
-```
-
-#### elasticmq for SQS integration tests
-```
-docker run -d -p 9324:9324 s12v/elasticmq
 ```

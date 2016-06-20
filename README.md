@@ -7,14 +7,27 @@ Fake Amazon Simple Notification Service (SNS) for testing. Supports:
  - Subscribe endpoint
  - Publish message
  - Subscription persistence
- - Integrations with SQS, File, HTTP, RabbitMQ, Slack
+ - Integrations with (Fake-)SQS, File, HTTP, RabbitMQ, Slack
 
 ## Usage
 
 ### Docker
 
+Based on the official `java:8-jre-alpine` image, with aws-cli pre-installed:
 ```
-docker run -d -p 9911:9911 -v example:/etc/sns s12v/sns
+docker run -d -p 9911:9911 s12v/sns
+```
+
+If you would like to keep the subscription database in the current host folder:
+```
+docker run -d -p 9911:9911 -v "$PWD":/etc/sns s12v/sns
+```
+
+#### Using aws-cli
+
+Create a topic:
+```
+docker exec <CONTAINER_ID> 'aws sns --endpoint-url http://localhost:9911 create-topic --name test1'
 ```
 
 ### Jar
@@ -28,41 +41,17 @@ Requires Java8.
 ## Configuration
 
 Configuration can be set via environment variables:
- - `DB_PATH` - path to database file, default: `db.json`
+ - `DB_PATH` - path to subscription database file, default: `db.json`
  - `HTTP_INTERFACE` - interface to bind to, default: `0.0.0.0`
  - `HTTP_PORT` - tcp port, default: `9911`
 
 ## Example fake SQS integration:
 
-Tested with [elasticmq](https://github.com/adamw/elasticmq). Database `db.json`:
+Tested with [elasticmq](https://github.com/adamw/elasticmq).
+See example/docker-compose.yml and example/config/db.json
 
-```json
-{
-  "version": 1,
-  "timestamp": 1465414804110,
-  "subscriptions": [
-    {
-      "arn": "subscription-arn1",
-      "topicArn": "arn:aws:sns:us-east-1:1465414804035:test1",
-      "endpoint": "aws-sqs://queue1?amazonSQSEndpoint=http://localhost:9324&accessKey=&secretKey=",
-      "owner": "",
-      "protocol": "sqs"
-    },
-    {
-      "arn": "subscription-arn2",
-      "topicArn": "arn:aws:sns:us-east-1:1465414804035:test1",
-      "endpoint": "file:///tmp?fileName=sns.log",
-      "owner": "",
-      "protocol": "file"
-    }
-  ],
-  "topics": [
-    {
-      "arn": "arn:aws:sns:us-east-1:1465414804035:test1",
-      "name": "test1"
-    }
-  ]
-}
+```
+docker run -d -p 9911:9911 -v "$PWD/example/config":/etc/sns s12v/sns
 ```
 
 ## Supported integrations

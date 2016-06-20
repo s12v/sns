@@ -13,14 +13,21 @@ Fake Amazon Simple Notification Service (SNS) for testing. Supports:
 
 ### Docker
 
-Based on the official `java:8-jre-alpine` image, with aws-cli pre-installed:
+Based on the official `java:8-jre-alpine` image. Run it with the command:
 ```
 docker run -d -p 9911:9911 s12v/sns
 ```
 
-If you would like to keep the subscription database in the current host folder:
+If you would like to keep the topic/subscription database in the current host folder:
 ```
 docker run -d -p 9911:9911 -v "$PWD":/etc/sns s12v/sns
+```
+
+#### Using aws-cli
+
+The image has aws-cli preinstalled. For example, create a topic:
+```
+docker exec <CONTAINER_ID> 'aws sns --endpoint-url http://localhost:9911 create-topic --name test1'
 ```
 
 ### Jar
@@ -38,22 +45,6 @@ Configuration can be set via environment variables:
  - `HTTP_INTERFACE` - interface to bind to, default: `0.0.0.0`
  - `HTTP_PORT` - tcp port, default: `9911`
 
-## Example fake SQS integration:
-
-Tested with [elasticmq](https://github.com/adamw/elasticmq).
-See example/docker-compose.yml and example/config/db.json
-
-```
-docker run -d -p 9911:9911 -v "$PWD/example/config":/etc/sns s12v/sns
-```
-
-### Using aws-cli
-
-Create a topic:
-```
-docker exec <CONTAINER_ID> 'aws sns --endpoint-url http://localhost:9911 create-topic --name test1'
-```
-
 ## Supported integrations
 
  - Amazon SQS: `aws-sqs://queueName?amazonSQSEndpoint=...&accessKey=&secretKey=`
@@ -63,6 +54,15 @@ docker exec <CONTAINER_ID> 'aws sns --endpoint-url http://localhost:9911 create-
  - Slack: `slack:@username?webhookUrl=https://hooks.slack.com/services/aaa/bbb/ccc`
 
 See [camel documentation](http://camel.apache.org/components.html) for more details
+
+### Example fake SQS integration:
+
+Tested with [elasticmq](https://github.com/adamw/elasticmq).
+See example/docker-compose.yml and example/config/db.json
+
+```
+docker run -d -p 9911:9911 -v "$PWD/example/config":/etc/sns s12v/sns
+```
 
 ## Development
 

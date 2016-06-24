@@ -18,5 +18,7 @@ RUN apk -Uuv add python py-pip && \
 	rm /var/cache/apk/*
 
 ADD https://github.com/s12v/sns/releases/download/$VERSION/sns-$VERSION.jar /sns.jar
+ADD entrypoint.sh /opt/entrypoint.sh
 
+ENTRYPOINT ["/opt/entrypoint.sh"]
 CMD ["java", "-jar", "/sns.jar"]

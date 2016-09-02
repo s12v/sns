@@ -5,7 +5,7 @@ import me.snov.sns.actor.SubscribeActor.CmdFanOut
 import me.snov.sns.model.Message
 
 object PublishActor {
-  def props(actor: ActorRef) = Props(new PublishActor(actor))
+  def props(actor: ActorRef) = Props(classOf[PublishActor], actor)
 
   case class CmdPublish(topicArn: String, message: String)
 }

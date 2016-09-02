@@ -8,7 +8,7 @@ import me.snov.sns.actor.DbActor.CmdGetConfiguration
 import me.snov.sns.model.{Configuration, Message, Subscription, Topic}
 
 object SubscribeActor {
-  def props(dbActor: ActorRef) = Props(new SubscribeActor(dbActor))
+  def props(dbActor: ActorRef) = Props(classOf[SubscribeActor], dbActor)
 
   case class CmdSubscribe(topicArn: String, protocol: String, endpoint: String)
 

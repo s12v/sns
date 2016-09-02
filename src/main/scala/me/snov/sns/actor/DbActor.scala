@@ -5,7 +5,7 @@ import me.snov.sns.model.Configuration
 import me.snov.sns.service.DbService
 
 object DbActor {
-  def props(dbService: DbService) = Props(new DbActor(dbService))
+  def props(dbService: DbService) = Props(classOf[DbActor], dbService)
 
   case class CmdGetConfiguration()
 }

@@ -1,6 +1,6 @@
 name := "sns"
 
-version := "0.1.0"
+version := "0.1.1"
 
 scalaVersion := "2.11.8"
 
@@ -9,7 +9,7 @@ assemblyJarName in assembly := s"sns-${version.value}.jar"
 test in assembly := {}
 
 libraryDependencies ++= {
-  val akkaVersion = "2.4.7"
+  val akkaVersion = "2.4.9"
   val camelVersion = "2.17.0"
 
   Seq(
@@ -85,6 +85,6 @@ libraryDependencies ++= {
     "org.apache.camel" % "camel-slack" % camelVersion
       exclude("junit", "junit")
     ,
-    "org.scalatest" %% "scalatest" % "2.2.6" % Test
+    "org.scalatest" %% "scalatest" % "3.0.0" % Test
   )
 }

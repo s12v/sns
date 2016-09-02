@@ -10,6 +10,7 @@ jdk:
 
 env:
   global:
+    - DOCKER_HUB_TRIGGER_URL=https://registry.hub.docker.com/u/s12v/sns/trigger
     - ENDPOINT=http://localhost:9911/
     - AWS_ACCESS_KEY_ID=foo
     - AWS_SECRET_ACCESS_KEY=bar
@@ -54,8 +55,9 @@ after_success:
   - bash <(curl -s https://codecov.io/bash)
   - |
     if [ "$TRAVIS_BRANCH" = "master" ]; then
-      curl -H 'Content-Type: application/json' --data '{"source_type": "Branch", "source_name": "master"}' \
-      -X POST "https://registry.hub.docker.com/u/s12v/sns/trigger/${DOCKER_HUB_TRIGGER_TOKEN}/"
+      curl -H 'Content-Type: application/json' \
+      -X POST "${DOCKER_HUB_TRIGGER_URL}/${DOCKER_HUB_TRIGGER_TOKEN}/" \
+      --data '{"source_type": "Branch", "source_name": "master"}'
     fi
 
 deploy:
@@ -71,5 +73,5 @@ deploy:
 after_deploy:
   - >
     curl -H 'Content-Type: application/json'
-    --data '{"source_type": "Tag", "source_name": "$TRAVIS_TAG"}'
-    -X POST "https://registry.hub.docker.com/u/s12v/sns/trigger/${DOCKER_HUB_TRIGGER_TOKEN}/"
+    -X POST "${DOCKER_HUB_TRIGGER_URL}/${DOCKER_HUB_TRIGGER_TOKEN}/"
+    --data "{\"source_type\": \"Tag\", \"source_name\": \"$TRAVIS_TAG"\}"

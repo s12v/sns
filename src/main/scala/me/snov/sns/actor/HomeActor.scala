@@ -12,12 +12,10 @@ object HomeActor {
 class HomeActor extends Actor {
   import me.snov.sns.actor.HomeActor._
 
-  def hello(): HttpResponse = {
-    HttpResponse(entity = HttpEntity("Hello, Akka"))
-  }
+  def hello = HttpResponse(entity = HttpEntity("Hello, Akka"))
 
   override def receive = {
-    case CmdHello => sender ! hello()
+    case CmdHello => sender ! hello
     case _ => sender ! HttpResponse(500, entity = "Invalid message")
   }
 }

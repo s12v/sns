@@ -74,4 +74,4 @@ after_deploy:
   - >
     curl -H 'Content-Type: application/json'
     -X POST "${DOCKER_HUB_TRIGGER_URL}/${DOCKER_HUB_TRIGGER_TOKEN}/"
-    --data "{\"source_type\": \"Tag\", \"source_name\": \"$TRAVIS_TAG"\}"
+    --data "{\"source_type\": \"Tag\", \"source_name\": \"$TRAVIS_TAG\"}"

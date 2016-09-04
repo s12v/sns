@@ -18,7 +18,7 @@ Feature: Subscription
     When I list subscriptions for topic "cucumber22"
     Then I don't see endpoint "http://example.com"
 
-  Scenario: List all topic
+  Scenario: List all topics
     Given I create a new topic "cucumber31"
     And I create a new topic "cucumber32"
     When I subscribe endpoint "http://example1.com" with protocol "http" to topic "cucumber31"

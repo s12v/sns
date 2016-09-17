@@ -1,5 +1,8 @@
 [![Build Status](https://travis-ci.org/s12v/sns.svg?branch=master)](https://travis-ci.org/s12v/sns)
 [![codecov](https://codecov.io/gh/s12v/sns/branch/master/graph/badge.svg)](https://codecov.io/gh/s12v/sns)
+[![Docker Pulls](https://img.shields.io/docker/pulls/s12v/sns.svg?maxAge=2592000)]()
+
+
 # Fake SNS
 
 Fake Amazon Simple Notification Service (SNS) for testing. Supports:

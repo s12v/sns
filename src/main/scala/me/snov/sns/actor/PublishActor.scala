@@ -7,14 +7,14 @@ import me.snov.sns.model.Message
 object PublishActor {
   def props(actor: ActorRef) = Props(classOf[PublishActor], actor)
 
-  case class CmdPublish(topicArn: String, message: String)
+  case class CmdPublish(topicArn: String, body: String)
 }
 
 class PublishActor(subscribeActor: ActorRef) extends Actor with ActorLogging {
   import me.snov.sns.actor.PublishActor._
   
-  private def publish(topicArn: String, messageString: String): Message = {
-    val message = Message(messageString)
+  private def publish(topicArn: String, body: String): Message = {
+    val message = Message(body)
 
     // todo ask
     subscribeActor ! CmdFanOut(topicArn, message)

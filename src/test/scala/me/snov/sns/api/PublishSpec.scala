@@ -33,12 +33,12 @@ class PublishSpec extends WordSpec with Matchers with ScalatestRouteTest {
 
     probe.setAutoPilot(new TestActor.AutoPilot {
       def run(sender: ActorRef, msg: Any) = {
-        sender ! Message("foo")
+        sender ! Message(Map("default" -> "foo"))
         this
       }
     })
     Post("/", FormData(params)) ~> route ~> check {
-      probe.expectMsg(CmdPublish("foo", "bar"))
+      probe.expectMsg(CmdPublish("foo", Map("default" -> "bar")))
     }
   }
 }

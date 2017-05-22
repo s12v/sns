@@ -85,7 +85,9 @@ object SubscribeResponse extends XmlHttpResponse {
           </Subscriptions>
         </ListSubscriptionsByTopicResult>
         <ResponseMetadata>
-          <RequestId>b9275252-3774-11df-9540-99d0768312d3</RequestId>
+          <RequestId>
+            {UUID.randomUUID}
+          </RequestId>
         </ResponseMetadata>
       </ListSubscriptionsByTopicResponse>
     )

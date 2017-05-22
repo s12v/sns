@@ -1,12 +1,13 @@
 package me.snov.sns.api
 
 import akka.actor.ActorRef
+import akka.actor.Status.Success
 import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.pattern.ask
 import akka.util.Timeout
-import me.snov.sns.actor.SubscribeActor.{CmdListSubscriptions, CmdListSubscriptionsByTopic, CmdSubscribe}
+import me.snov.sns.actor.SubscribeActor.{CmdListSubscriptions, CmdListSubscriptionsByTopic, CmdSubscribe, CmdUnsubscribe}
 import me.snov.sns.model.Subscription
 import me.snov.sns.response.SubscribeResponse
 
@@ -44,6 +45,17 @@ object SubscribeApi {
               SubscribeResponse.list
             }
           }
+        } ~
+        formField('Action ! "Unsubscribe") {
+          formField('SubscriptionArn) { (arn) =>
+            complete {
+              (actorRef ? CmdUnsubscribe(arn)).map {
+                case Success => SubscribeResponse.unsubscribe
+                case _ => HttpResponse(404, entity = "NotFound")
+              }
+            }
+          } ~
+          complete(HttpResponse(400, entity = "SubscriptionArn is missing"))
         }
     }
   }

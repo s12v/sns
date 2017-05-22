@@ -23,6 +23,18 @@ object SubscribeResponse extends XmlHttpResponse {
     )
   }
 
+  def unsubscribe = {
+    response(
+      <UnsubscribeResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
+        <ResponseMetadata>
+          <RequestId>
+            {UUID.randomUUID}
+          </RequestId>
+        </ResponseMetadata>
+      </UnsubscribeResponse>
+    )
+  }
+
   def list(subscriptions: Iterable[Subscription]): HttpResponse = {
     response(
       <ListSubscriptionsResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">

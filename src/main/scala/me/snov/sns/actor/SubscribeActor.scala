@@ -59,7 +59,7 @@ class SubscribeActor(dbActor: ActorRef) extends Actor with ActorLogging {
   }
 
   def subscribe(topicArn: TopicArn, protocol: String, endpoint: String): Subscription = {
-    val subscription = Subscription(UUID.randomUUID().toString, "", topicArn, protocol, endpoint)
+    val subscription = Subscription(s"${topicArn}:${UUID.randomUUID}", "", topicArn, protocol, endpoint)
     initSubscription(subscription)
     
     save()

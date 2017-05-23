@@ -3,7 +3,7 @@ package me.snov.sns.api
 import java.util.concurrent.TimeUnit
 
 import akka.actor.ActorRef
-import akka.http.scaladsl.model.{FormData, HttpResponse, StatusCodes}
+import akka.http.scaladsl.model.{FormData,StatusCodes}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.testkit.{TestActor, TestProbe}
 import akka.util.Timeout

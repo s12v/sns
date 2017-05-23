@@ -24,7 +24,7 @@ class PublishSpec extends WordSpec with Matchers with ScalatestRouteTest {
     }
   }
 
-  "Sends subscribe command" in {
+  "Sends publish command" in {
     val params = Map(
       "Action" -> "Publish",
       "TopicArn" -> "foo",

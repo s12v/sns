@@ -4,7 +4,6 @@ require 'logger'
 Before do
   @rand = Random::DEFAULT.rand(999999999999)
   @arns = {}
-  @resp = nil
 end
 
 After do

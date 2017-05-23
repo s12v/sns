@@ -4,6 +4,7 @@ require 'logger'
 Before do
   @rand = Random::DEFAULT.rand(999999999999)
   @arns = {}
+  @namedSubscriptionArns = {}
 end
 
 After do

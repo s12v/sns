@@ -26,3 +26,9 @@ Feature: Subscription
     And I list all subscriptions
     Then I see endpoint "http://example1.com" with topic "cucumber31"
     And I see endpoint "http://example2.com" with topic "cucumber32"
+
+  Scenario: Unsubscribe
+    Given I create a new topic "cucumber4"
+    And I subscribe endpoint "http://example.com" with protocol "http" to topic "cucumber4" as "subscription"
+    And I unsubscribe "subscription"
+    Then unsubscription should be successful

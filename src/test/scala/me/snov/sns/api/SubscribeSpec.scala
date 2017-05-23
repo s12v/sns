@@ -7,7 +7,7 @@ import akka.http.scaladsl.model.{FormData, HttpResponse, StatusCodes}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.testkit.{TestActor, TestProbe}
 import akka.util.Timeout
-import me.snov.sns.actor.SubscribeActor.{CmdListSubscriptionsByTopic, CmdListSubscriptions, CmdSubscribe}
+import me.snov.sns.actor.SubscribeActor.{CmdListSubscriptionsByTopic, CmdListSubscriptions, CmdSubscribe, CmdUnsubscribe}
 import me.snov.sns.model.Subscription
 import org.scalatest.{Matchers, WordSpec}
 
@@ -80,6 +80,30 @@ class SubscribeSpec extends WordSpec with Matchers with ScalatestRouteTest {
     })
     Post("/", FormData(params)) ~> route ~> check {
       probe.expectMsg(CmdListSubscriptionsByTopic("foo"))
+    }
+  }
+
+  "Unsubscribe requires SubscriptionArn" in {
+    val params = Map("Action" -> "Unsubscribe")
+    Post("/", FormData(params)) ~> route ~> check {
+      status shouldBe StatusCodes.BadRequest
+    }
+  }
+
+  "Sends unsubscribe command" in {
+    val params = Map(
+      "Action" -> "Unsubscribe",
+      "SubscriptionArn" -> "foo"
+    )
+
+    probe.setAutoPilot(new TestActor.AutoPilot {
+      def run(sender: ActorRef, msg: Any) = {
+        sender ! Subscription("foo", "bar", "aaa", "bbb", "ccc")
+        this
+      }
+    })
+    Post("/", FormData(params)) ~> route ~> check {
+      probe.expectMsg(CmdUnsubscribe("foo"))
     }
   }
 }

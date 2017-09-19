@@ -12,6 +12,8 @@ object SubscribeActor {
 
   case class CmdSubscribe(topicArn: String, protocol: String, endpoint: String)
 
+  case class CmdUnsubscribe(subscriptionArn: String)
+
   case class CmdListSubscriptions()
 
   case class CmdListSubscriptionsByTopic(topicArn: String)
@@ -75,6 +77,14 @@ class SubscribeActor(dbActor: ActorRef) extends Actor with ActorLogging {
     subscriptions += (subscription.topicArn -> listByTopic)
   }
 
+  def unsubscribe(subscriptionArn: String) = {
+    subscriptions = subscriptions.map { case (key, topicSubscriptions) => (key, topicSubscriptions.filter((s: Subscription) => s.arn != subscriptionArn)) }.toMap
+
+    save()
+
+    Success
+  }
+
   def listSubscriptionsByTopic(topicArn: TopicArn): List[Subscription] = {
     subscriptions.getOrElse(topicArn, List())
   }
@@ -128,6 +138,7 @@ class SubscribeActor(dbActor: ActorRef) extends Actor with ActorLogging {
     case CmdDeleteTopic(arn) => sender ! delete(arn)
     case CmdListTopics => sender ! topics.values
     case CmdSubscribe(topicArn, protocol, endpoint) => sender ! subscribe(topicArn, protocol, endpoint)
+    case CmdUnsubscribe(subscriptionArn) => sender ! unsubscribe(subscriptionArn)
     case CmdListSubscriptionsByTopic(topicArn) => sender ! listSubscriptionsByTopic(topicArn)
     case CmdListSubscriptions() => sender ! listSubscriptions()
     case CmdFanOut(topicArn, message) => sender ! fanOut(topicArn, message)

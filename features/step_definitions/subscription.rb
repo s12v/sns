@@ -1,9 +1,12 @@
-When(/^I subscribe endpoint "([^"]*)" with protocol "([^"]*)" to topic "([^"]*)"$/) do |endpoint, protocol, topic|
+When(/^I subscribe endpoint "([^"]*)" with protocol "([^"]*)" to topic "([^"]*)"(?: as "([^"]*)")?$/) do |endpoint, protocol, topic, name|
   @response = $SNS.subscribe({
     topic_arn: get_arn(topic),
     protocol: protocol,
     endpoint: endpoint,
   })
+  if (name)
+    @namedSubscriptionArns[name] = @response.subscription_arn
+  end
 end
 
 Then(/^subscription should be successful$/) do
@@ -42,4 +45,14 @@ end
 
 And(/^I list all subscriptions$/) do
   @response = $SNS.list_subscriptions
+end
+
+When(/^I unsubscribe "([^"]*)"$/) do |name|
+  @response = $SNS.unsubscribe({
+    subscription_arn: @namedSubscriptionArns[name]
+  })
+end
+
+Then(/^unsubscription should be successful$/) do
+  expect(@response.error).to be nil
 end

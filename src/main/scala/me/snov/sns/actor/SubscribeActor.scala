@@ -45,7 +45,7 @@ class SubscribeActor(dbActor: ActorRef) extends Actor with ActorLogging {
         subscriptions.get(topicArn).get.foreach((s: Subscription) => {
           if (actorPool.isDefinedAt(s)) {
             log.debug(s"Sending message ${message.uuid} to ${s.endpoint}")
-            actorPool(s) ! message.body
+            actorPool(s) ! message
           } else {
             throw new RuntimeException(s"No actor for subscription ${s.endpoint}")
           }
@@ -70,7 +70,7 @@ class SubscribeActor(dbActor: ActorRef) extends Actor with ActorLogging {
   }
 
   def initSubscription(subscription: Subscription) = {
-    val producer = context.system.actorOf(ProducerActor.props(subscription.endpoint))
+    val producer = context.system.actorOf(ProducerActor.props(subscription.endpoint, subscription.arn, subscription.topicArn))
     val listByTopic = subscription :: subscriptions.getOrElse(subscription.topicArn, List())
 
     actorPool += (subscription -> producer)

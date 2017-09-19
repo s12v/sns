@@ -36,7 +36,7 @@ Then(/^I should see "([^"]*)" in queue "([^"]*)"$/) do |message, queue_url|
 
   found = false
   response.messages.each do |m|
-    if m.body == message
+    if m.body.index(message)
       found = true
       $SQS.delete_message({
                             queue_url: queue_url,

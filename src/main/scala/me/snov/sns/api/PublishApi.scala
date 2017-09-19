@@ -10,6 +10,9 @@ import me.snov.sns.actor.PublishActor.CmdPublish
 import me.snov.sns.model.Message
 import me.snov.sns.response.PublishResponse
 
+import spray.json._
+import DefaultJsonProtocol._
+
 import scala.concurrent.ExecutionContext
 
 object PublishApi {
@@ -18,14 +21,24 @@ object PublishApi {
   def route(actorRef: ActorRef)(implicit timeout: Timeout, ec: ExecutionContext): Route = {
     pathSingleSlash {
       formField('Action ! "Publish") {
-        formFields('TopicArn, 'Message) { (topicArn, message) =>
-          topicArn match {
-            case arnPattern(topic) => complete {
-              (actorRef ? CmdPublish(topic, message)).mapTo[Message].map {
-                PublishResponse.publish
+        formFields('TopicArn, 'MessageStructure.?, 'Message) { (topicArn, messageStructure, message) =>
+          try {
+            topicArn match {
+              case arnPattern(topic) => complete {
+                val bodies = messageStructure match {
+                  case Some("json") => message.parseJson.asJsObject.convertTo[Map[String, String]]
+                  case Some(_) => throw new RuntimeException("Invalid MessageStructure value");
+                  case None => Map("default" -> message)
+                }
+
+                (actorRef ? CmdPublish(topic, bodies)).mapTo[Message].map {
+                  PublishResponse.publish
+                }
               }
+              case _ => complete(HttpResponse(400, entity = "Invalid topic ARN"))
             }
-            case _ => complete(HttpResponse(400, entity = "Invalid topic ARN"))
+          } catch {
+            case e: RuntimeException => complete(HttpResponse(400, entity = e.getMessage))
           }
         } ~
         complete(HttpResponse(400, entity = "TopicArn is required"))

@@ -3,7 +3,7 @@ package me.snov.sns.api
 import java.util.concurrent.TimeUnit
 
 import akka.actor.ActorRef
-import akka.http.scaladsl.model.{FormData, HttpResponse, StatusCodes}
+import akka.http.scaladsl.model.{FormData,StatusCodes}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.testkit.{TestActor, TestProbe}
 import akka.util.Timeout
@@ -24,7 +24,7 @@ class PublishSpec extends WordSpec with Matchers with ScalatestRouteTest {
     }
   }
 
-  "Sends subscribe command" in {
+  "Sends publish command" in {
     val params = Map(
       "Action" -> "Publish",
       "TopicArn" -> "foo",
@@ -33,12 +33,12 @@ class PublishSpec extends WordSpec with Matchers with ScalatestRouteTest {
 
     probe.setAutoPilot(new TestActor.AutoPilot {
       def run(sender: ActorRef, msg: Any) = {
-        sender ! Message("foo")
+        sender ! Message(Map("default" -> "foo"))
         this
       }
     })
     Post("/", FormData(params)) ~> route ~> check {
-      probe.expectMsg(CmdPublish("foo", "bar"))
+      probe.expectMsg(CmdPublish("foo", Map("default" -> "bar")))
     }
   }
 }

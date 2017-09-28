@@ -4,10 +4,24 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths, StandardOpenOption}
 
 import akka.event.LoggingAdapter
-import me.snov.sns.model.Configuration
+import me.snov.sns.model.{Configuration, Subscription, Topic}
 import spray.json._
 
-class DbService(dbFilePath: String)(implicit log: LoggingAdapter) {
+trait DbService {
+  def load(): Option[Configuration]
+
+  def save(configuration: Configuration)
+}
+
+class MemoryDbService extends DbService {
+  override def load(): Option[Configuration] = {
+    Some(Configuration(subscriptions= List[Subscription](), topics= List[Topic]()))
+  }
+
+  override def save(configuration: Configuration): Unit = {}
+}
+
+class FileDbService(dbFilePath: String)(implicit log: LoggingAdapter) extends DbService {
 
   val subscriptionsName = "subscriptions"
   val topicsName = "topics"

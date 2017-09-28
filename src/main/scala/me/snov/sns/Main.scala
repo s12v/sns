@@ -10,7 +10,7 @@ import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
 import me.snov.sns.actor._
 import me.snov.sns.api._
-import me.snov.sns.service.DbService
+import me.snov.sns.service.FileDbService
 import me.snov.sns.util.ToStrict
 
 import scala.concurrent.ExecutionContext
@@ -25,7 +25,7 @@ object Main extends App with ToStrict {
   implicit val timeout = new Timeout(1.second)
 
   val config = ConfigFactory.load()
-  val dbService = new DbService(Properties.envOrElse("DB_PATH", config.getString("db.path")))
+  val dbService = new FileDbService(Properties.envOrElse("DB_PATH", config.getString("db.path")))
 
   val dbActor = system.actorOf(DbActor.props(dbService), name = "DbActor")
   val homeActor = system.actorOf(HomeActor.props, name = "HomeActor")

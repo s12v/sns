@@ -56,7 +56,11 @@ Configuration can be set via environment variables:
  - File: `file://tmp?fileName=sns1.txt`
  - Slack: `slack:@username?webhookUrl=https://hooks.slack.com/services/aaa/bbb/ccc`
 
-See [camel documentation](http://camel.apache.org/components.html) for more details
+See [camel documentation](http://camel.apache.org/components.html) for more details. 
+
+Note: Environment variables can be used to specify URIs via `{{env:ENV_NAME}}`.
+
+Example: `aws-sqs://{{env:QUEUE_NAME}}?amazonSQSEndpoint={{env:SQS_ENDPOINT}}&...`
 
 ### Example fake SQS integration:
 

@@ -30,14 +30,14 @@ docker run -d -p 9911:9911 -v "$PWD":/etc/sns s12v/sns
 
 The image has aws-cli preinstalled. For example, create a topic:
 ```
-docker exec <CONTAINER_ID> 'aws sns --endpoint-url http://localhost:9911 create-topic --name test1'
+docker exec <CONTAINER_ID> sh -c 'aws sns --endpoint-url http://localhost:9911 create-topic --name test1'
 ```
 
 ### Jar
 
 Download the latest release from https://github.com/s12v/sns/releases and run:
 ```
-DB_PATH=/tmp/db.json java -jar sns-0.1.0.jar
+DB_PATH=/tmp/db.json java -jar sns-0.2.0.jar
 ```
 Requires Java8.
 

@@ -2,12 +2,14 @@ package me.snov.sns.response
 
 import java.util.UUID
 
+import akka.http.scaladsl.model.StatusCodes.OK
 import akka.http.scaladsl.model.HttpResponse
 import me.snov.sns.model.Topic
 
 object TopicResponse extends XmlHttpResponse {
   def delete = {
     response(
+      OK,
       <DeleteTopicResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
         <ResponseMetadata>
           <RequestId>
@@ -20,6 +22,7 @@ object TopicResponse extends XmlHttpResponse {
 
   def create(topic: Topic): HttpResponse = {
     response(
+      OK,
       <CreateTopicResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
         <CreateTopicResult>
           <TopicArn>
@@ -37,6 +40,7 @@ object TopicResponse extends XmlHttpResponse {
 
   def list(topics: Iterable[Topic]): HttpResponse = {
     response(
+      OK,
       <ListTopicsResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
         <ListTopicsResult>
           <Topics>

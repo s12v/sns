@@ -7,17 +7,17 @@ import akka.http.scaladsl.server.Route
 import akka.pattern.ask
 import akka.util.Timeout
 import me.snov.sns.actor.PublishActor.CmdPublish
-import me.snov.sns.model.Message
+import me.snov.sns.model.{Message, TopicNotFoundException}
 import me.snov.sns.response.PublishResponse
-
+import spray.json.DefaultJsonProtocol._
 import spray.json._
-import DefaultJsonProtocol._
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
+
 
 object PublishApi {
   private val arnPattern = """([\w+_:-]{1,512})""".r
-  
+
   def route(actorRef: ActorRef)(implicit timeout: Timeout, ec: ExecutionContext): Route = {
     pathSingleSlash {
       formField('Action ! "Publish") {
@@ -31,8 +31,11 @@ object PublishApi {
                   case None => Map("default" -> message)
                 }
 
-                (actorRef ? CmdPublish(topic, bodies)).mapTo[Message].map {
-                  PublishResponse.publish
+                (actorRef ? CmdPublish(topic, bodies)).collect {
+                  case m: Message => PublishResponse.publish(m)
+                }.recover {
+                  case t: TopicNotFoundException => PublishResponse.topicNotFound(t.getMessage)
+                  case t: Throwable => HttpResponse(500, entity = t.getMessage)
                 }
               }
               case _ => complete(HttpResponse(400, entity = "Invalid topic ARN"))
@@ -41,7 +44,7 @@ object PublishApi {
             case e: RuntimeException => complete(HttpResponse(400, entity = e.getMessage))
           }
         } ~
-        complete(HttpResponse(400, entity = "TopicArn is required"))
+          complete(HttpResponse(400, entity = "TopicArn is required"))
       }
     }
   }

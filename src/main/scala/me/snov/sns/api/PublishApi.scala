@@ -34,7 +34,7 @@ object PublishApi {
                 (actorRef ? CmdPublish(topic, bodies)).collect {
                   case m: Message => PublishResponse.publish(m)
                 }.recover {
-                  case t: TopicNotFoundException => HttpResponse(404, entity = t.getMessage)
+                  case t: TopicNotFoundException => PublishResponse.topicNotFound(t.getMessage)
                   case t: Throwable => HttpResponse(500, entity = t.getMessage)
                 }
               }

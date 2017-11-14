@@ -5,7 +5,7 @@ import java.util.UUID
 import akka.actor.Status.{Failure, Success}
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import me.snov.sns.actor.DbActor.CmdGetConfiguration
-import me.snov.sns.model.{Configuration, Message, Subscription, Topic}
+import me.snov.sns.model._
 
 object SubscribeActor {
   def props(dbActor: ActorRef) = Props(classOf[SubscribeActor], dbActor)
@@ -39,10 +39,10 @@ class SubscribeActor(dbActor: ActorRef) extends Actor with ActorLogging {
 
   dbActor ! CmdGetConfiguration
 
-  def fanOut(topicArn: TopicArn, message: Message) = {
+  private def fanOut(topicArn: TopicArn, message: Message) = {
     try {
       if (topics.isDefinedAt(topicArn) && subscriptions.isDefinedAt(topicArn)) {
-        subscriptions.get(topicArn).get.foreach((s: Subscription) => {
+        subscriptions(topicArn).foreach((s: Subscription) => {
           if (actorPool.isDefinedAt(s)) {
             log.debug(s"Sending message ${message.uuid} to ${s.endpoint}")
             actorPool(s) ! message
@@ -51,12 +51,12 @@ class SubscribeActor(dbActor: ActorRef) extends Actor with ActorLogging {
           }
         })
       } else {
-        throw new RuntimeException(s"Topic not found: $topicArn")
+        throw new TopicNotFoundException(s"Topic not found: $topicArn")
       }
       
       Success
     } catch {
-      case e: RuntimeException => Failure
+      case e: Throwable => Failure(e)
     }
   }
 

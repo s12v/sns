@@ -2,8 +2,19 @@ When(/^I publish a message "([^"]*)" to topic "([^"]*)"$/) do |message, topic|
   @response = $SNS.publish(topic_arn: get_arn(topic), message: message)
 end
 
+When(/^I publish a message "([^"]*)" to TopicArn "([^"]*)"$/) do |message, topic_arn|
+  begin
+    @response = $SNS.publish(topic_arn: topic_arn, message: message)
+  rescue => @error
+  end
+end
+
 Then(/^The publish request should be successful$/) do
   expect(@response.message_id.length).to be > 0
+end
+
+Then(/^The publish request should return "([^"]*)" error$/) do |code|
+  expect(@error.code).to eq code
 end
 
 def file_contains_string(file, message)

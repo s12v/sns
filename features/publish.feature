@@ -15,3 +15,7 @@ Feature: Publish
     Then I wait for 1 seconds
     Then I should see "Hello, World" in file "./tmp/sns1.log"
     Then I should not see "Hello, World" in file "./tmp/sns2.log"
+
+  Scenario: Publish in non-existing topic
+    When I publish a message "Hello, World!" to TopicArn "non-existing-1"
+    Then The publish request should return "NotFound" error

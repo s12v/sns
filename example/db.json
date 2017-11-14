@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "timestamp": 1510678970316,
+  "subscriptions": [],
+  "topics": [{
+    "arn": "arn:aws:sns:us-east-1:1510678956433:test1",
+    "name": "test1"
+  }, {
+    "arn": "arn:aws:sns:us-east-1:1510678970316:test2",
+    "name": "test2"
+  }]
+}

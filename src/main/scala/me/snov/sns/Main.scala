@@ -41,6 +41,8 @@ object Main extends App with ToStrict {
       HomeApi.route(homeActor)
     }
 
+  logger.info("SNS v{} is starting", getClass.getPackage.getImplementationVersion)
+
   Http().bindAndHandle(
     handler = logRequestResult("akka-http-sns")(routes),
     interface = Properties.envOrElse("HTTP_INTERFACE", config.getString("http.interface")),

@@ -97,7 +97,7 @@ class SubscribeActor(dbActor: ActorRef) extends Actor with ActorLogging {
     topics.values.find(_.name == name) match {
       case Some(topic) => topic
       case None =>
-        val topic = Topic(s"arn:aws:sns:us-east-1:${System.currentTimeMillis}:$name", name)
+        val topic = Topic(s"arn:aws:sns:us-east-1:123456789012:$name", name)
         topics += (topic.arn -> topic)
 
         save()

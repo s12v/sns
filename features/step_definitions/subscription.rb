@@ -56,3 +56,21 @@ end
 Then(/^unsubscription should be successful$/) do
   expect(@response.error).to be nil
 end
+
+Given("I set {string} for {string} to {string}") do |an, name, av|
+   @response = $SNS.set_subscription_attributes({
+    subscription_arn: @namedSubscriptionArns[name],
+    attribute_value: av,
+    attribute_name: an
+  })
+end
+
+Given("I get subscription attributes for {string}") do |name|
+  @response = $SNS.get_subscription_attributes({
+    subscription_arn: @namedSubscriptionArns[name]
+  })
+end
+
+Then("I see attribute {string} with value {string}") do |name, value|
+  @response.attributes[name] == value
+end

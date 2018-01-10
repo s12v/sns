@@ -7,9 +7,10 @@ import akka.http.scaladsl.model.{FormData, HttpResponse, StatusCodes}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.testkit.{TestActor, TestProbe}
 import akka.util.Timeout
-import me.snov.sns.actor.SubscribeActor.{CmdListSubscriptionsByTopic, CmdListSubscriptions, CmdSubscribe, CmdUnsubscribe}
+import me.snov.sns.actor.SubscribeActor.{CmdListSubscriptionsByTopic, CmdListSubscriptions, CmdSubscribe, CmdUnsubscribe, CmdSetSubscriptionAttributes,CmdGetSubscriptionAttributes}
 import me.snov.sns.model.Subscription
 import org.scalatest.{Matchers, WordSpec}
+import akka.actor.Status.Success
 
 class SubscribeSpec extends WordSpec with Matchers with ScalatestRouteTest {
   implicit val timeout = new Timeout(100, TimeUnit.MILLISECONDS)
@@ -106,4 +107,60 @@ class SubscribeSpec extends WordSpec with Matchers with ScalatestRouteTest {
       probe.expectMsg(CmdUnsubscribe("foo"))
     }
   }
+
+  "Set Attributes requires SubscriptionArn, Name, Value" in {
+     val params = Map("Action" -> "SetSubscriptionAttributes")
+    Post("/", FormData(params)) ~> route ~> check {
+      status shouldBe StatusCodes.BadRequest
+    }
+    Post("/", FormData(params + ("AttributeName" -> "Name"))) ~> route ~> check {
+      status shouldBe StatusCodes.BadRequest
+    }
+    Post("/", FormData(params + ("AttributeValue" -> "Value"))) ~> route ~> check {
+      status shouldBe StatusCodes.BadRequest
+    }
+  }
+
+  "Sends SetSubscriptionAttribute command" in {
+     val params = Map(
+      "Action" -> "SetSubscriptionAttributes",
+      "SubscriptionArn" -> "foo",
+      "AttributeName" -> "an",
+      "AttributeValue" -> "av"
+    )
+
+    probe.setAutoPilot(new TestActor.AutoPilot {
+      def run(sender: ActorRef, msg: Any) = {
+        sender ! Success
+        this
+      }
+    })
+    Post("/", FormData(params)) ~> route ~> check {
+      probe.expectMsg(CmdSetSubscriptionAttributes("foo", "an", "av"))
+    }
+  }
+  "Get Attributes requires SubscriptionArn" in {
+     val params = Map("Action" -> "GetSubscriptionAttributes")
+    Post("/", FormData(params)) ~> route ~> check {
+      status shouldBe StatusCodes.BadRequest
+    }
+  }
+
+  "Sends GetSubscriptionAttribute command" in {
+     val params = Map(
+      "Action" -> "GetSubscriptionAttributes",
+      "SubscriptionArn" -> "foo",
+    )
+
+    probe.setAutoPilot(new TestActor.AutoPilot {
+      def run(sender: ActorRef, msg: Any) = {
+        sender ! Some(Map("foo" -> "bar", "aaa" -> "bbb", "an" -> "av"))
+        this
+      }
+    })
+    Post("/", FormData(params)) ~> route ~> check {
+      probe.expectMsg(CmdGetSubscriptionAttributes("foo"))
+    }
+  }
+
 }

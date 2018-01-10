@@ -32,3 +32,10 @@ Feature: Subscription
     And I subscribe endpoint "http://example.com" with protocol "http" to topic "cucumber4" as "subscription"
     And I unsubscribe "subscription"
     Then unsubscription should be successful
+
+  Scenario: Set Subscription Attributes
+    Given I create a new topic "cucumber5"
+    And I subscribe endpoint "http://example.com" with protocol "http" to topic "cucumber5" as "subscription"
+    And I set "RawMessageDelivery" for "subscription" to "true"
+    And I get subscription attributes for "subscription"
+    Then I see attribute "RawMessageDelivry" with value "true"

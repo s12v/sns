@@ -1,13 +1,13 @@
 package me.snov.sns.api
 
 import akka.actor.ActorRef
-import akka.actor.Status.Success
+import akka.actor.Status.{Success, Failure}
 import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.pattern.ask
 import akka.util.Timeout
-import me.snov.sns.actor.SubscribeActor.{CmdListSubscriptions, CmdListSubscriptionsByTopic, CmdSubscribe, CmdUnsubscribe}
+import me.snov.sns.actor.SubscribeActor.{CmdListSubscriptions, CmdListSubscriptionsByTopic, CmdSubscribe, CmdUnsubscribe,CmdSetSubscriptionAttributes,CmdGetSubscriptionAttributes}
 import me.snov.sns.model.Subscription
 import me.snov.sns.response.SubscribeResponse
 
@@ -52,6 +52,31 @@ object SubscribeApi {
               (actorRef ? CmdUnsubscribe(arn)).map {
                 case Success => SubscribeResponse.unsubscribe
                 case _ => HttpResponse(404, entity = "NotFound")
+              }
+            }
+          } ~
+          complete(HttpResponse(400, entity = "SubscriptionArn is missing"))
+        } ~
+        formField('Action ! "SetSubscriptionAttributes") {
+          formField('SubscriptionArn, 'AttributeName, 'AttributeValue) { (arn, name, value) =>
+            complete {
+              (actorRef ? CmdSetSubscriptionAttributes(arn, name, value)).map {
+                case Success => SubscribeResponse.setSubscriptionAttributes
+                case Failure(ex) => HttpResponse(404, entity = "NotFound")
+              }
+            }
+          } ~
+          complete(HttpResponse(400, entity = "SubscriptionArn is missing"))
+        } ~
+        formField('Action ! "GetSubscriptionAttributes") {
+          formField('SubscriptionArn) { (arn) =>
+            complete {
+              (actorRef ? CmdGetSubscriptionAttributes(arn)).mapTo[Option[Map[String,String]]] map { attributes =>
+                attributes
+                  .map(SubscribeResponse.getSubscriptionAttributes)
+                  .getOrElse {
+                    HttpResponse(404, entity = "Not Found")
+                  }
               }
             }
           } ~

@@ -15,12 +15,15 @@ class ProducerActor(endpoint: String, subscriptionArn: String, topicArn: String)
   def endpointUri = endpoint
 
   override def transformOutgoingMessage(msg: Any) = msg match {
-    case snsMsg: Message => new CamelMessage(snsMsg.toJson.toString, Map(
+    case snsMsg: Message => {
+      new CamelMessage(snsMsg.toJson.toString, Map(
+
         CamelMessage.MessageExchangeId -> snsMsg.uuid,
         "x-amz-sns-message-type" -> "Notification",
         "x-amz-sns-message-id" -> snsMsg.uuid,
         "x-amz-sns-subscription-arn" -> subscriptionArn,
         "x-amz-sns-topic-arn" -> topicArn
       ))
+    }
   }
 }

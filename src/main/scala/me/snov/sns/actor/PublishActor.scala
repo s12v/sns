@@ -6,7 +6,7 @@ import akka.pattern.ask
 import akka.pattern.pipe
 import akka.util.Timeout
 import me.snov.sns.actor.SubscribeActor.CmdFanOut
-import me.snov.sns.model.Message
+import me.snov.sns.model.{Message, MessageAttribute}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
@@ -14,7 +14,7 @@ import scala.concurrent.duration._
 object PublishActor {
   def props(actor: ActorRef) = Props(classOf[PublishActor], actor)
 
-  case class CmdPublish(topicArn: String, bodies: Map[String, String])
+  case class CmdPublish(topicArn: String, bodies: Map[String, String], messageAttributes: Map[String, MessageAttribute])
 }
 
 class PublishActor(subscribeActor: ActorRef) extends Actor with ActorLogging {
@@ -23,8 +23,8 @@ class PublishActor(subscribeActor: ActorRef) extends Actor with ActorLogging {
   private implicit val timeout = Timeout(1.second)
   private implicit val ec = context.dispatcher
 
-  private def publish(topicArn: String, bodies: Map[String, String])(implicit ec: ExecutionContext) = {
-    val message = Message(bodies)
+  private def publish(topicArn: String, bodies: Map[String, String], messageAttributes: Map[String, MessageAttribute])(implicit ec: ExecutionContext) = {
+    val message = Message(bodies, messageAttributes = messageAttributes)
 
     (subscribeActor ? CmdFanOut(topicArn, message)).map {
       case Failure(e) => Failure(e)
@@ -33,6 +33,6 @@ class PublishActor(subscribeActor: ActorRef) extends Actor with ActorLogging {
   }
 
   override def receive = {
-    case CmdPublish(topicArn, bodies) => publish(topicArn, bodies) pipeTo sender
+    case CmdPublish(topicArn, bodies, attributes) => publish(topicArn, bodies, attributes) pipeTo sender
   }
 }

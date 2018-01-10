@@ -36,8 +36,8 @@ class FileDbService(dbFilePath: String)(implicit log: LoggingAdapter) extends Db
         log.info("Loaded DB")
         return Some(configuration)
       } catch {
-        case e: DeserializationException => log.warning("Unable to parse configuration")
-        case e: RuntimeException => log.warning("Unable to load configuration")
+        case e: DeserializationException => log.error(e, "Unable to parse configuration")
+        case e: RuntimeException => log.error(e,"Unable to load configuration")
       }
     }
     None

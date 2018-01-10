@@ -109,4 +109,37 @@ object SubscribeResponse extends XmlHttpResponse {
       </ListSubscriptionsByTopicResponse>
     )
   }
+
+  def setSubscriptionAttributes: HttpResponse = {
+    response(
+      OK,
+       <SetSubscriptionAttributesResponse
+          xmlns="http://sns.amazonaws.com/doc/2010-03-31/"> 
+          <ResponseMetadata>
+            <RequestId>{UUID.randomUUID}</RequestId>
+          </ResponseMetadata> 
+        </SetSubscriptionAttributesResponse> 
+    )
+  }
+
+  def getSubscriptionAttributes(attrs:Map[String,String]): HttpResponse = {
+    response(
+      OK,
+       <GetSubscriptionAttributesResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/"> 
+        <GetSubscriptionAttributesResult>
+          <Attributes> 
+            {attrs.map( x =>
+            <entry> 
+              <key>{x._1}</key>
+              <value>{x._2}</value> 
+            </entry> 
+            )}
+          </Attributes> 
+        </GetSubscriptionAttributesResult>
+        <ResponseMetadata>
+          <RequestId>{UUID.randomUUID}</RequestId>
+        </ResponseMetadata> 
+      </GetSubscriptionAttributesResponse> 
+    )
+  }
 }

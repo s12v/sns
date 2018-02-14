@@ -33,7 +33,7 @@ install:
 script:
   - sbt coverage test coverageReport
   - sbt assembly
-  - JAR=$(ls $TRAVIS_BUILD_DIR/target/scala-2.12/sns-*.jar | tail -1)
+  - JAR=$(ls target/scala-2.12/sns-*.jar | tail -1)
   - java -jar "$JAR" > log.txt &
   - >
     bash <(curl -s https://raw.githubusercontent.com/s12v/wait4port/master/wait4port.sh)

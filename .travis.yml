@@ -62,6 +62,9 @@ after_failure:
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 
+before_deploy:
+  - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+
 deploy:
   - provider: releases
     api_key:
@@ -71,16 +74,12 @@ deploy:
     on:
       tags: true
   - provider: script
-    script: |
-      docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
-      docker push $TRAVIS_REPO_SLUG
+    script: docker push $TRAVIS_REPO_SLUG
     skip_cleanup: true
     on:
       tags: true
   - provider: script
-    script: |
-      docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
-      docker push $TRAVIS_REPO_SLUG
+    script: docker push $TRAVIS_REPO_SLUG
     skip_cleanup: true
     on:
       branch: master

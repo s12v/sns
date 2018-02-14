@@ -53,7 +53,7 @@ script:
     else
       TAG="$TRAVIS_BRANCH"
     fi
-    docker --build-arg JAR="$JAR" -t "$TRAVIS_REPO_SLUG:$TAG" .
+    docker build --build-arg JAR="$JAR" -t "$TRAVIS_REPO_SLUG:$TAG" .
 
 after_failure:
   - cat log.txt

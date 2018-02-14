@@ -74,11 +74,13 @@ deploy:
     script: |
       docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
       docker push $TRAVIS_REPO_SLUG
+    skip_cleanup: true
     on:
       tags: true
   - provider: script
     script: |
       docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
       docker push $TRAVIS_REPO_SLUG
+    skip_cleanup: true
     on:
       branch: master

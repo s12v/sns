@@ -16,6 +16,7 @@ import spray.json._
 
 import scala.concurrent.{ExecutionContext, Future}
 
+case class InvalidTopicArnException(msg: String) extends Exception(msg)
 
 object PublishApi {
   private val arnPattern = """([\w+_:-]{1,512})""".r
@@ -25,9 +26,9 @@ object PublishApi {
       formField('Action ! "Publish") {
         formFieldSeq { fields =>
           val messageAttributes: Map[String, MessageAttribute] = MessageAttribute.parse(fields)
-          formFields('TopicArn, 'MessageStructure.?, 'Message) { (topicArn, messageStructure, message) =>
+          formFields('TopicArn.?, 'TargetArn.?, 'MessageStructure.?, 'Message) { (topicArnMaybe, targetArnMaybe, messageStructure, message) =>
             try {
-              topicArn match {
+              topicArn(topicArnMaybe, targetArnMaybe) match {
                 case arnPattern(topic) => complete {
                   val bodies = messageStructure match {
                     case Some("json") => message.parseJson.asJsObject.convertTo[Map[String, String]]
@@ -44,6 +45,7 @@ object PublishApi {
                 case _ => complete(HttpResponse(400, entity = "Invalid topic ARN"))
               }
             } catch {
+              case e: InvalidTopicArnException => complete(HttpResponse(400, entity = e.getMessage))
               case e: RuntimeException => complete(HttpResponse(400, entity = e.getMessage))
             }
           }
@@ -52,4 +54,9 @@ object PublishApi {
       }
     }
   }
+
+  private def topicArn(topicArnMaybe: Option[String], targetArnMaybe: Option[String]): String = {
+    topicArnMaybe.getOrElse(targetArnMaybe.getOrElse(throw InvalidTopicArnException("Neither TopicArn nor TargetArn provided")))
+  }
 }
+

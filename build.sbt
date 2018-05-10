@@ -1,6 +1,6 @@
 name := "sns"
 
-version := "0.3.7"
+version := "0.4.1"
 
 scalaVersion := "2.12.4"
 

@@ -42,6 +42,24 @@ class PublishSpec extends WordSpec with Matchers with ScalatestRouteTest {
     }
   }
 
+  "Sends publish command to TargetArn" in {
+    val params = Map(
+      "Action" -> "Publish",
+      "TargetArn" -> "foo",
+      "Message" -> "bar"
+    )
+
+    probe.setAutoPilot(new TestActor.AutoPilot {
+      def run(sender: ActorRef, msg: Any) = {
+        sender ! Message(Map("default" -> "foo"))
+        this
+      }
+    })
+    Post("/", FormData(params)) ~> route ~> check {
+      probe.expectMsg(CmdPublish("foo", Map("default" -> "bar"), Map.empty))
+    }
+  }
+
   "Sends publish command with attributes" in {
     val params = Map(
       "Action" -> "Publish",

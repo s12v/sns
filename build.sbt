@@ -8,9 +8,9 @@ scalaVersion := "2.12.4"
 assemblyJarName in assembly := s"sns-${version.value}.jar"
 test in assembly := {}
 
-val akkaVersion = "2.5.6"
-val akkaHttpVersion = "10.0.10"
-val camelVersion = "2.19.4"
+val akkaVersion = "2.5.12"
+val akkaHttpVersion = "10.1.1"
+val camelVersion = "2.21.1"
 
 libraryDependencies ++= {
   Seq(

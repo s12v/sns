@@ -16,7 +16,7 @@ class ProducerActor(endpoint: String, subscriptionArn: String, topicArn: String)
 
   override def transformOutgoingMessage(msg: Any) = msg match {
     case snsMsg: Message => {
-      new CamelMessage(snsMsg.toJson.toString, Map(
+      new CamelMessage(snsMsg.bodies.getOrElse("default", ""), Map(
 
         CamelMessage.MessageExchangeId -> snsMsg.uuid,
         Exchange.HTTP_METHOD -> HttpMethods.POST,

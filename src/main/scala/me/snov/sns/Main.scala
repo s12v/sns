@@ -29,7 +29,7 @@ object Main extends App with ToStrict {
 
   val dbActor = system.actorOf(DbActor.props(dbService), name = "DbActor")
   val homeActor = system.actorOf(HomeActor.props, name = "HomeActor")
-  val subscribeActor = system.actorOf(SubscribeActor.props(dbActor), name = "SubscribeActor")
+  val subscribeActor = system.actorOf(SubscribeActor.props(dbActor, config), name = "SubscribeActor")
   val publishActor = system.actorOf(PublishActor.props(subscribeActor), name = "PublishActor")
 
   val routes: Route =
@@ -41,7 +41,8 @@ object Main extends App with ToStrict {
       HomeApi.route(homeActor)
     }
 
-  logger.info("SNS v{} is starting", getClass.getPackage.getImplementationVersion)
+  val implVer = getClass.getPackage.getImplementationVersion // when not running from jar
+  logger.info("SNS {} is starting", if (implVer == null) "" else s"v$implVer")
 
   Http().bindAndHandle(
     handler = logRequestResult("akka-http-sns")(routes),

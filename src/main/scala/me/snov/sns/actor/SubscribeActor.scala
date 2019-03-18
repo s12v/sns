@@ -8,9 +8,43 @@ import me.snov.sns.actor.DbActor.CmdGetConfiguration
 import me.snov.sns.model._
 import akka.actor.PoisonPill
 import akka.actor.Status
+import akka.event.{Logging, LoggingAdapter}
+import com.typesafe.config.{Config, ConfigFactory}
+
+import scala.util.Properties
 
 object SubscribeActor {
-  def props(dbActor: ActorRef) = Props(classOf[SubscribeActor], dbActor)
+
+  def arnTemplateFrom(config: Config) = {
+    val region = Properties.envOrElse("SNS_REGION", if (config.hasPath("sns.region")) config.getString("sns.region") else "us-east-1")
+    val account = Properties.envOrElse("SNS_ACCOUNT", if (config.hasPath("sns.account")) config.getString("sns.account") else "123456789012")
+    val retval = s"arn:aws:sns:$region:$account:"
+    retval
+  }
+
+  def elasticMqContextFrom(config: Config) = {
+
+    case class ElasticMqContext(prefix: String, endpoint: String, access: String, secret: String) {
+      def transform(ep: String) : String = {
+        // arn:aws:sqs:elasticmq:000000000000:myqueue
+        if (ep.startsWith(prefix)) {
+          val qName = ep.split(":")(5)
+          val newEp = s"aws-sqs://${qName}?amazonSQSEndpoint=$endpoint&accessKey=$access&secretKey=$secret"
+          return newEp
+        }
+        return ep
+      }
+    }
+
+    val prefix = Properties.envOrElse("ELASTICMQ_PREFIX", if (config.hasPath("elasticmq.prefix")) config.getString("elasticmq.prefix") else "arn:aws:sqs:elasticmq")
+    val endpoint = Properties.envOrElse("ELASTICMQ_ENDPOINT", if (config.hasPath("elasticmq.endpoint")) config.getString("elasticmq.endpoint") else "http://localhost:4576")
+    val access = Properties.envOrElse("ELASTICMQ_ACCESS", if (config.hasPath("elasticmq.access")) config.getString("elasticmq.access") else "x")
+    val secret = Properties.envOrElse("ELASTICMQ_SECRET", if (config.hasPath("elasticmq.secret")) config.getString("elasticmq.secret") else "x")
+    ElasticMqContext(prefix, endpoint, access, secret)
+  }
+
+
+  def props(dbActor: ActorRef, config: Config) = Props(classOf[SubscribeActor], dbActor, config)
 
   case class CmdSubscribe(topicArn: String, protocol: String, endpoint: String)
 
@@ -32,7 +66,7 @@ object SubscribeActor {
   case class CmdGetSubscriptionAttributes(subscriptionArn: String)
 }
 
-class SubscribeActor(dbActor: ActorRef) extends Actor with ActorLogging {
+class SubscribeActor(dbActor: ActorRef, config: Config) extends Actor with ActorLogging {
 
   import me.snov.sns.actor.SubscribeActor._
   
@@ -42,6 +76,8 @@ class SubscribeActor(dbActor: ActorRef) extends Actor with ActorLogging {
   var topics = Map[TopicArn, Topic]()
   var subscriptions = Map[TopicArn, List[Subscription]]()
   var actorPool = Map[SubscriptionArn, ActorRef]()
+  val arnTemplate = arnTemplateFrom(config)
+  val elasticMqContext = elasticMqContextFrom(config)
 
   dbActor ! CmdGetConfiguration
 
@@ -74,7 +110,12 @@ class SubscribeActor(dbActor: ActorRef) extends Actor with ActorLogging {
     val producer = if(subscription.isRawMessageDelivery) {
       context.system.actorOf(RawProducerActor.props(subscription.endpoint, subscription.arn, subscription.topicArn))
     } else {
-      context.system.actorOf(ProducerActor.props(subscription.endpoint, subscription.arn, subscription.topicArn))
+      log.debug(s"subscription: endpoint=${subscription.endpoint}, arn=${subscription.arn}, topicArn=${subscription.topicArn}")
+      val elasticMqEpOrAny = elasticMqContext.transform(subscription.endpoint)
+      if (elasticMqEpOrAny != subscription.endpoint) {
+        log.debug(s"subscription: transformed endpoint from=${subscription.endpoint}, to=${elasticMqEpOrAny}")
+      }
+      context.system.actorOf(ProducerActor.props(elasticMqEpOrAny, subscription.arn, subscription.topicArn))
     }
     producer
   }
@@ -148,7 +189,11 @@ class SubscribeActor(dbActor: ActorRef) extends Actor with ActorLogging {
     topics.values.find(_.name == name) match {
       case Some(topic) => topic
       case None =>
-        val topic = Topic(s"arn:aws:sns:us-east-1:123456789012:$name", name)
+
+        val newTopicArn = s"$arnTemplate$name"
+        log.debug("Will create a new topic: ARN={}", newTopicArn)
+        val topic = Topic(newTopicArn, name)
+
         topics += (topic.arn -> topic)
 
         save()

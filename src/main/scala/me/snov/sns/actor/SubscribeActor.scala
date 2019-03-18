@@ -37,7 +37,7 @@ object SubscribeActor {
     }
 
     val prefix = Properties.envOrElse("ELASTICMQ_PREFIX", if (config.hasPath("elasticmq.prefix")) config.getString("elasticmq.prefix") else "arn:aws:sqs:elasticmq")
-    val endpoint = Properties.envOrElse("ELASTICMQ_ENDPOINT", if (config.hasPath("elasticmq.endpoint")) config.getString("elasticmq.endpoint") else "http://localhost:4574")
+    val endpoint = Properties.envOrElse("ELASTICMQ_ENDPOINT", if (config.hasPath("elasticmq.endpoint")) config.getString("elasticmq.endpoint") else "http://localhost:4576")
     val access = Properties.envOrElse("ELASTICMQ_ACCESS", if (config.hasPath("elasticmq.access")) config.getString("elasticmq.access") else "x")
     val secret = Properties.envOrElse("ELASTICMQ_SECRET", if (config.hasPath("elasticmq.secret")) config.getString("elasticmq.secret") else "x")
     ElasticMqContext(prefix, endpoint, access, secret)
